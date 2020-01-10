@@ -1,0 +1,587 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>repair</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.list-main{
+				background: #eee;
+			}
+			.list-main-li{
+				border-radius: .2rem;
+				margin: .2rem .2rem 0 .2rem;
+			}
+			.list-main-li p{
+				color: #707070;
+				padding: 0.05rem 0;
+			}
+			.list-main-li p b{
+				padding: 0 0.1rem;
+			}
+			.bui-list{
+				padding-bottom: .1rem;
+			}
+			.list-main .bui-list{
+				padding-bottom: 1rem;
+			}
+			[class*=bui-btn] label{
+				display: inline-block;
+				text-align: justify;
+				vertical-align: middle;
+				width: 2rem;
+			}
+			.list-main-li p{
+				overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        /*! autoprefixer: off */
+        -webkit-box-orient: vertical;
+			}
+			.list-main-li p i.icon{
+				font-size: .34rem;
+				color: #F29702;
+			}
+			.list-main-li .repair-title{
+				font-size: .36rem;
+				color: #000;
+				font-weight: bold;
+			}
+			.list-main-li .repair-create{
+				font-size: .24rem;
+				color: #707070;
+			}
+			.list-main-li .line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+				margin: .2rem 0;
+			}
+			.list-main-li .span1{
+				position: relative;
+			}
+			.list-main-li .repair-status{
+				color: #F16F0A;
+				font-size: .24rem;
+				position: absolute;
+				right: .2rem;
+				top: .18rem;
+				font-weight: bold;
+			}
+			.list-main-li .repair-status.done{
+				color: #39a4ff;
+			}
+			.bui-list.bui-menu-bottom{
+				padding-bottom: 0;
+				border: 1px solid #eee;
+			}
+			.repair-btn{
+				text-align: center;
+		    color: #F16F0A;
+		    padding-top: .1rem;
+			}
+			.repair-btn.done{
+				color: #39a4ff;
+			}
+			.bui-box .span1 textarea{
+				padding: .2rem;
+			}
+		</style>
+	</head>
+<body style="background-color:#eee;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">维修保养</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<div class="bui-box">
+        <div class="span1">
+            <div id="uiDoropdownArea" class="bui-dropdown">
+                <div class="bui-btn bui-box">
+                    <div class="span1">企业</div>
+                    <i class="icon-dropdown"></i>
+                </div>
+            </div>
+        </div>
+				<div class="span1">
+            <div id="uiDoropdownStatus" class="bui-dropdown">
+                <div class="bui-btn bui-box">
+                    <div class="span1">状态</div>
+                    <i class="icon-dropdown"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+		<main class="list-main">
+			<ul class="bui-list" id="content"></ul>
+		</main>
+	<script id="tpl" type="text/x-dot-template">
+		{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+		{{ } }}
+		{{for(var p in it){ }}
+		<li class="bui-btn bui-box list-main-li">
+			<div class="span1">
+				<p class="repair-title">{{=it[p].enterpriseName}}</p>
+				<p class="repair-create"><span>创建人：{{=it[p].creator}}</span><b>|</b><span>创建时间：{{=it[p].createTime}}</span></p>
+				<div class="line"></div>
+				<p><label class="bui-label" for="phonenumber">设备名</label>{{=it[p].deviceName}}</p>
+				<p><label class="bui-label" for="phonenumber">设备编号</label>{{=it[p].deviceCode}}</p>
+				<p><label class="bui-label" for="phonenumber">备注</label>{{=it[p].remark}}</p>
+				{{ if(it[p].status == 1){ }}
+					<span class="repair-status">待处理</span>
+				{{ } }}
+				{{ if(it[p].status == 2){ }}
+					<span class="repair-status done">已处理</span>
+				{{ } }}
+				{{ if(it[p].status == 1){ }}
+				<div class="line"></div>
+				<div class="repair-btn btnOpen" data-id="{{=it[p].id}}">执行维保</div>
+				{{ } }}
+				{{ if(it[p].status == 2){ }}
+				<div class="line"></div>
+				<div class="repair-btn done" tapmode onclick="toSee('{{=it[p].id}}');">查看详情</div>
+				{{ } }}
+			</div>
+		</li>
+		{{ } }}
+	</script>
+	<div id="dialogCenter" class="bui-dialog" style="display: none;">
+	    <div class="bui-dialog-head" style="font-size:.4rem;color:green;font-weight:bold;">执行维修保养</div>
+	    <div class="bui-dialog-main">
+				<ul class="bui-list">
+					<li class="bui-btn bui-box clearactive">
+						<label class="bui-label" style="width:2.2rem">净化机运行状态</label>：
+						<div class="span1">
+							<div id="purifierFault" class="bui-dropdown">
+									<div class="bui-btn bui-box">
+											<div class="span1">请选择</div>
+											<i class="icon-dropdown"></i>
+									</div>
+							</div>
+						</div>
+						<div class="span1"></div>
+					</li>
+					<li class="bui-btn bui-box clearactive">
+						<label class="bui-label" style="width:2.2rem">风机运行状态</label>：
+						<div class="span1">
+							<div id="fanFault" class="bui-dropdown">
+									<div class="bui-btn bui-box">
+											<div class="span1">请选择</div>
+											<i class="icon-dropdown"></i>
+									</div>
+							</div>
+						</div>
+						<div class="span1"></div>
+					</li>
+					<li class="bui-btn bui-box clearactive">
+		        <label class="bui-label">维修保养备注</label>：
+						<div class="span1">
+							<textarea style="border: 1px solid #eee;" class="bui-input" id="remark" cols="30" rows="4" placeholder=""></textarea>
+						</div>
+		      </li>
+					<li class="bui-btn bui-box clearactive">
+						<label class="bui-label">附件</label>
+						<div class="span1"></div>
+					</li>
+				</ul>
+				<div id="buiPhoto" class="bui-upload bui-fluid-space-4">
+						<div class="span1">
+								<div id="btnUpload" class="bui-btn">
+										<i class="icon-plus large"></i>
+								</div>
+						</div>
+				</div>
+	    </div>
+	    <div class="bui-dialog-foot">
+	        <div class="bui-box">
+	            <div class="span1">
+	                <div class="bui-btn">取消</div>
+	            </div>
+	            <div class="span1">
+	                <div class="bui-btn blue" id='makeSure'>确定</div>
+	            </div>
+	        </div>
+	    </div>
+	    <div class="bui-dialog-close"><i class="icon-close"></i></div>
+	</div>
+	</div>
+
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+
+	var enterpriseId = '', status = 1, curId = '', purifierFaultStatus='',fanFaultStatus='';
+  var uiUpload = null, picList = [];
+	//动态渲染
+	var uiDoropdown = bui.dropdown({
+			id: "#uiDoropdownStatus",
+			data: [{
+					name: "全部",
+					value: 3
+			},{
+					name: "待处理",
+					value: 1
+			}, {
+					name: "已处理",
+					value: 2
+			}],
+			//设置relative为false,二级菜单继承父层宽度
+			relative: false,
+			value: 1,
+			onChange: function(e) {
+					status = this.value() || 3;
+					getData();
+			},
+			callback: function(e) {
+
+			}
+	})
+
+  var purifierFault = bui.dropdown({
+      id: "#purifierFault",
+      data: [{
+          name: "正常",
+          value: 1
+      }, {
+          name: "异常",
+          value: 2
+      }],
+      relative: false,
+      value: '',
+      onChange: function(e) {
+				purifierFaultStatus = this.value();
+      }
+  })
+	var fanFault = bui.dropdown({
+      id: "#fanFault",
+      data: [{
+          name: "正常",
+          value: 1
+      }, {
+          name: "异常",
+          value: 2
+      }],
+      relative: false,
+      value: '',
+      onChange: function(e) {
+				fanFaultStatus = this.value();
+      }
+  })
+
+	apiready = function(){
+	    var header = $api.byId('header');
+			$api.fixStatusBar(header);
+	    api.setStatusBarStyle({
+	        style: 'light'
+	    });
+
+			getEnterprise();
+
+			// 拍照上传
+		  var $facePhoto = $("#buiPhoto");
+		  var $uploadBtn = $("#btnUpload").parent();
+
+		  uiUpload = bui.upload({
+		      showProgress: false
+		  });
+			// 上拉菜单 js 初始化:
+		   var uiActionsheet = bui.actionsheet({
+		       trigger: "#btnUpload",
+		       buttons: [{ name: "拍照上传", value: "camera" }, { name: "从相册选取", value: "photo" }],
+		       callback: function(e) {
+		           var ui = this;
+		           var val = $(e.target).attr("value");
+		           switch (val) {
+		               case "camera":
+		                   ui.hide();
+		                   uiUpload.add({
+		                       "from": "camera",
+		                       "needCompress": true, // 1.5.3新增压缩
+		                       "width": 300,
+		                       "destinationType": "file", //  file | blob | data
+		                       "onSuccess": function(val, data) {
+		                           // 展示base64本地图片 建议直接调用start方法上传以后再展示远程地址,避免应用崩溃
+		                           this.toBase64({
+		                               onSuccess: function(url) {
+		                                   $uploadBtn.before(templatePhoto(url))
+		                               }
+		                           });
+		                           // 直接调用start上传图片
+		                           this.start({
+		                               header: {},
+		                               url: common_url + "/lbk/api/file/upload",
+		                               onSuccess: function(data) {
+																		 if(data.code == 200){
+																				picList.push(data.result[0]);
+																		 }else{
+																			 api.toast({
+																 						msg: data.message,
+																 						location: 'middle'
+																 				});
+																 				return false;
+																		 }
+		                                   // 成功
+		                               },
+		                               onFail: function(data) {
+		                                   console.log(JSON.stringify(data), "fail");
+		                                   // 失败
+		                               },
+		                           })
+		                       }
+		                   })
+		                   break;
+		               case "photo":
+		                   ui.hide();
+		                   uiUpload.add({
+		                       "from": "",
+		                       "onSuccess": function(val, data) {
+		                           // 展示base64本地图片 建议直接调用start方法上传以后再展示远程地址,避免应用崩溃
+		                           this.toBase64({
+		                               onSuccess: function(url) {
+		                                   $uploadBtn.before(templatePhoto(url))
+		                               }
+		                           });
+															 // 直接调用start上传图片
+		                           this.start({
+		                               header: {},
+		                               url: common_url + "/lbk/api/file/upload",
+		                               onSuccess: function(data) {
+																		 if(data.code == 200){
+																				picList.push(data.result[0]);
+																		 }else{
+																			 api.toast({
+																 						msg: data.message,
+																 						location: 'middle'
+																 				});
+																 				return false;
+																		 }
+		                                   // 成功
+		                               },
+		                               onFail: function(data) {
+		                                   console.log(JSON.stringify(data), "fail");
+		                                   // 失败
+		                               },
+		                           })
+		                       }
+		                   })
+		                   break;
+		               case "cancel":
+		                   ui.hide();
+		                   break;
+		           }
+		       }
+		   })
+
+		   function templatePhoto(url) {
+		       return '<div class="span1" data-index="'+uiUpload.currentIndex()+'" data-name="'+uiUpload.currentName()+'"><div class="bui-upload-thumbnail"><img src="'+url+'" alt="" /><i class="icon-removefill"></i></div></div>'
+		   }
+		   // 选择图片文件
+		   $("#getSelect").on("click", function(argument) {
+		       bui.alert(uiUpload.data());
+		   })
+
+		   // 选择图片文件
+		   $facePhoto.on("click", ".icon-removefill", function(e) {
+		       var $item = $(this).parents(".span1");
+		       var index = $item.attr("data-index");
+		       // 删除对应的上传数据
+		       uiUpload.remove(index);
+		       // 删除dom显示
+		       $item.remove();
+		       e.stopPropagation();
+		   })
+	};
+
+	function getData(){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: "REPAIR_QUERY",
+				userId: userData.userId,
+				requestData: {
+					pageNo: 1,
+					pageSize: 999,
+					status: (status == 1 || status == 2) ? status : '',
+					enterpriseId: enterpriseId == 'all' ? '' : enterpriseId
+				}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(ret.result.list));
+
+
+				  $('.btnOpen').on("click", function(e) {
+						purifierFault.reset();
+						fanFault.reset();
+						purifierFaultStatus = '';
+						fanFaultStatus = '';
+						picList = [];
+						uiUpload.remove();
+						uiUpload.clear();
+						$('.bui-upload-thumbnail').remove();
+						$('#remark').val('');
+							// 自定义居中弹出框
+						  var uiDialog = bui.dialog({
+						      id: "#dialogCenter",
+						      height: 380,
+						      callback: function(e) {
+						          console.log(e.target)
+						      }
+						  });
+
+							curId = $(this).data('id');
+				      uiDialog.open();
+				  })
+
+
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	// 自定义确定按钮事件
+	$("#makeSure").on("click", function() {
+			if(!purifierFaultStatus){
+				api.toast({
+						msg: '请选择净化器状态！',
+						location: 'middle'
+				});
+				return false;
+			}
+			if(!fanFaultStatus){
+				api.toast({
+						msg: '请选择风机状态！',
+						location: 'middle'
+				});
+				return false;
+			}
+
+			var remark = $('#remark').val() || '';
+			var params = {
+				repairId: curId,
+				purifierFault: purifierFaultStatus == 1 ? 0 : 1,
+				fanFault: fanFaultStatus == 1 ? 0 : 1,
+				remark: remark,
+				enclosures: picList
+			}
+
+			var userData = $api.getStorage('mine');
+			api.showProgress({
+					title:'执行中',
+					modal:false
+			});
+			ajaxRequest('post', {
+					apiCode: 'REPAIR_RECORD',
+					userId: userData.userId,
+					requestData: params
+			}, function (ret, err) {
+					api.hideProgress();
+					if (ret.code == 200) {
+						getData();
+						api.sendEvent({
+								name: 'loderPage'
+						});
+					} else {
+						api.toast({
+								msg: ret.message,
+								location: 'middle'
+						});
+						return false;
+					}
+			});
+	});
+
+	function getEnterprise(){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: "ENTERPRISE_LIST",
+				userId: userData.userId,
+				requestData: {
+					areaCode: ''
+				}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					var result = ret.result;
+					//动态渲染
+					var area = [{
+							name: "全部",
+							value: 'all'
+					}];
+					for(var i=0;i<result.length;i++){
+						area.push({
+							name: result[i].name,
+							value: result[i].id,
+						})
+					}
+
+				  var uiDoropdownArea = bui.dropdown({
+				      id: "#uiDoropdownArea",
+				      data: area,
+				      relative: false,
+				      value: 'all',
+				      onChange: function(e) {
+				          enterpriseId = this.value();
+									getData();
+				      },
+				      callback: function(e) {
+
+				      }
+				  })
+
+					getData();
+
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+	//去查看
+	function toSee(id){
+		api.openWin({
+		    name: 'repair-detail',
+		    url: './repair-detail.html',
+		    pageParam: {
+		        id: id
+		    }
+		});
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+</script>
+</body>
+</html>

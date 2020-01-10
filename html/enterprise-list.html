@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>enterprise-list</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.bui-list>[class*=bui-btn]:last-child{
+					border-bottom: 1px solid #eee;
+				}
+				.bui-box p{
+					color: #666;
+				}
+				.bui-box p span.bui-value{
+					color: #000;
+					font-weight: bold;
+					overflow: hidden;
+			    text-overflow: ellipsis;
+			    white-space: nowrap;
+			    width: 70%;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-box .hui{
+					color: #eee;
+					font-weight: bold;
+				}
+				.bui-label{
+					width: 1.2rem;
+					overflow: hidden;
+				}
+
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">企业列表</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<main>
+		<ul class="bui-list" id="content">
+			<!-- <li class="bui-btn bui-box">
+						<div class="span1">
+								<h3 class="item-title">碧富美特(勿删)</h3>
+								<p class="item-text"><span class="bui-label">企业地址</span><span class="bui-value">xxxx</span</p>
+								<p class="item-text"><span class="bui-label">负责人</span><span class="bui-value">xxxx</span></p>
+								<p class="item-text"><span class="bui-label">电话</span><span class="bui-value">xxxx}</span</p>
+						</div>
+						<i class="icon-listright"></i>
+				</li> -->
+      </ul>
+	</main>
+
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+	{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+	{{ } }}
+	{{for(var p in it){ }}
+		<li class="bui-btn bui-box" tapmode onclick="onDetail('{{=it[p].id}}');">
+			<div class="span1">
+					<h3 class="item-title">{{=it[p].name}}</h3>
+					<p class="item-text"><span class="bui-label">企业地址</span><span class="bui-value">{{=it[p].address}}</span</p>
+					<p class="item-text"><span class="bui-label">负责人</span><span class="bui-value">{{=it[p].owner}}</span></p>
+					<p class="item-text"><span class="bui-label">电话</span><span class="bui-value">{{=it[p].ownerMobile}}</span</p>
+			</div>
+			<i class="icon-listright"></i>
+		</li>
+		{{ } }}
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = {};
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		getData();
+
+	}
+
+	function getData(id){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: 'ENTERPRISE_QUERY',
+				userId: userData.userId,
+				requestData: {areaCode: "", name: "", style: "", pageSize: 999, pageNo: 1}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					data = ret.result.list;
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(data));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	//详情
+	function onDetail(id){
+		var item = {};
+		for(var i=0;i<data.length;i++){
+			if(data[i].id == id){
+				item = data[i];
+			}
+		}
+		api.openWin({
+				name: 'enterprise-detail',
+				url: './enterprise-detail.html',
+				pageParam: item
+		});
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

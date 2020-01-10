@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0, width=device-width"/>
+    <title>api</title>
+    <link rel="stylesheet" href="./css/bui.css">
+    <style>
+      #wrap {
+        height: 100%;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-flow: column;
+        flex-flow: column;
+      }
+      .header{
+        width: 100%;
+      }
+      #main {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+      }
+      .bui-bar > .header{
+        display: none;
+      }
+      .bui-bar > .header.active{
+        display: block;
+      }
+      .bui-nav > .active {
+          color: #39a4ff;
+          background: #fff;
+      }
+      .bui-bar-right a{
+        padding-top: .2rem;
+        padding-right: .2rem;
+        color: #fff;
+        display: inline-block;
+      }
+      .icon-attention{
+        font-size: .5rem;
+        color: #fff;
+        padding-top: .26rem;
+        padding-right: .6rem;
+      }
+    </style>
+</head>
+<body>
+    <div id="wrap" class="bui-page">
+        <header id="header" class="bui-bar">
+          <div class="header active">
+            <div class="bui-bar main">
+              <div class="bui-bar-left">
+              </div>
+              <div class="bui-bar-main">浦口区餐饮油烟智能监控云平台</div>
+              <div class="bui-bar-right" tapmode="active" onclick="openMapWin()">
+                <i class="icon-attention">&#xe680;</i>
+              </div>
+            </div>
+          </div>
+          <div class="header active">
+            <div class="bui-bar work">
+              <div class="bui-bar-left">
+              </div>
+              <div class="bui-bar-main">待办中心</div>
+              <div class="bui-bar-right">
+              </div>
+            </div>
+          </div>
+          <!-- <div class="header">
+            <div class="bui-bar control">
+              <div class="bui-bar-left">
+              </div>
+              <div class="bui-bar-main">监控</div>
+              <div class="bui-bar-right" tapmode onclick="openEnterprise()">
+                <a href="javascript:;">筛选</a>
+              </div>
+            </div>
+          </div> -->
+          <div class="header">
+            <div class="bui-bar user">
+              <div class="bui-bar-left">
+              </div>
+              <div class="bui-bar-main">我的</div>
+              <div class="bui-bar-right">
+              </div>
+            </div>
+          </div>
+
+        </header>
+        <main id="main">
+
+        </main>
+        <footer id="nav">
+          <ul class="bui-nav">
+              <li class="bui-btn bui-box-vertical main active" tapmode="active" onclick="openTab('main')">
+                  <i class="icon-home"></i>
+                  <div class="span1">首页</div>
+              </li>
+              <li class="bui-btn bui-box-vertical work" tapmode="active" onclick="openTab('work')">
+                  <i class="icon-fankui">&#xe62d;</i>
+                  <div class="span1">待办</div>
+              </li>
+              <!-- <li class="bui-btn bui-box-vertical control" tapmode="active" onclick="openTab('control')">
+                  <i class="icon-attention">&#xe680;</i>
+                  <div class="span1">监控</div>
+              </li> -->
+              <li class="bui-btn bui-box-vertical list" tapmode="active" onclick="openTab('list')">
+                  <i class="icon-shenfen">&#xe63a;</i>
+                  <div class="span1">工单</div>
+              </li>
+              <li class="bui-btn bui-box-vertical user" tapmode="active" onclick="openTab('user')">
+                  <i class="icon-people">&#xe67b;</i>
+                  <div class="span1">我的</div>
+              </li>
+          </ul>
+        </footer>
+    </div>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/zepto.js"></script>
+<script type="text/javascript" src="./script/common.js"></script>
+<script type="text/javascript" src="./script/index.js"></script>
+</html>

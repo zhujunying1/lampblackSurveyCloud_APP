@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="transparent">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="../css/bui.css">
+    <style>
+    .backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+    }
+    .backdrop.opacity {
+      background: rgba(0,0,0,0);
+    }
+    .dropdown-menu {
+      font-size: 0.3rem;
+      display: table;
+      position: relative;
+      z-index: 9;
+      border-radius: 0.2rem;
+      background: #fff;
+    }
+    .dropdown-menu li{
+      padding: .05rem 0.4rem 0.05rem 0.2rem;
+      color: #000;
+    }
+    .dropdown-menu img{
+      width: .8rem;
+      vertical-align: middle;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="backdrop opacity"></div>
+    <ul class="dropdown-menu">
+      <li><img src="../image/site1.png"/>正常</li>
+      <!-- <li><img src="../image/site3.png"/>预警</li> -->
+      <li><img src="../image/site4.png"/>超标</li>
+      <li><img src="../image/site2.png"/>离线</li>
+    </ul>
+  </body>
+</html>

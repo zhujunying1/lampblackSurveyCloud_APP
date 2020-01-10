@@ -1,0 +1,570 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>main</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/common.js"></script>
+		<style type="text/css">
+			html, body{
+			  overflow: auto;
+			    width: 100%;
+			    height: auto;
+			}
+			.bui-list{
+				overflow: auto;
+			}
+				.job-ul{
+					padding: .3rem 0;
+				}
+				.job-ul li{
+					text-align: center;
+					background: #2F9CF0;
+					color: #fff;
+				}
+				.job-ul li:nth-child(2){
+					background: #9BCC66;
+				}
+				.job-ul li:nth-child(3){
+					background: #F7CA4A;
+				}
+				.job-ul li:nth-child(4){
+					background: #F06451;
+				}
+				[class*=bui-box].job-ul>li{
+					margin: 0 .2rem;
+					padding: .2rem;
+				}
+				.job-ul li p{
+					font-size: .6rem;
+				}
+				.job-ul li p span{
+					font-size: .3rem;
+				}
+				.recommend-item {
+					padding: .24rem;
+					border-bottom: 1px solid #ccc;
+				}
+				.recommend-item:last-child{
+					border-bottom: none;
+					padding-bottom: 1rem;
+				}
+				.recommend-tip {
+					padding: 0 .24rem;
+					margin-bottom: 0;
+					font-size: .24rem;
+					color: #999
+				}
+
+				.recommend-title {
+					font-size: .32rem;
+					line-height: 1.4;
+					color: #333;
+				}
+
+				.pic-box {
+					width: 2rem;
+					margin: auto;
+				}
+				.ring {
+					width: 2rem;
+					height: 2rem;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					flex-direction: column;
+					position: relative;
+				}
+				.fraction {
+					position: absolute;
+					font-size: .3rem;
+					font-weight: bold;
+					color: #00ABEB;
+				}
+				.small {
+					font-size: .2rem;
+					font-weight: lighter;
+				}
+				.title {
+					font-size: .3rem;
+					color: #00ABEB;
+					bottom: -.2rem;
+					position: absolute;
+				}
+				.state-tip{
+			    border: 1px solid #D32C6B;
+			    display: inline-block;
+			    text-align: center;
+			    border-radius: 0 .5rem .5rem 0;
+			    margin-left: .1rem;
+			    color: #D32C6B;
+			    font-size: .26rem;
+					padding: 0 .15rem;
+				}
+				.state-tip.open{
+					border: 1px solid #5182E4;
+					color: #5182E4;
+				}
+				.state-tip.green{
+					border: 1px solid #3FB27F;
+					color: #3FB27F;
+					padding: 0.03rem .15rem;
+				}
+				.recommend-service{
+					padding: .1rem 0;
+    			color: #666;
+					font-size: .28rem;
+				}
+				.recommend-address{ color: #666; font-size: .28rem;}
+				.tags{padding: .1rem 0;color: #666;}
+				.tag-item{padding-right: .2rem;font-size: .28rem;}
+				.recommend-time{
+					font-size: .26rem;
+					padding-top: .1rem;
+				}
+				.bui-list .icon{
+					height: .64rem;
+				}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div style="overflow:auto;">
+		<ul class="bui-box job-ul">
+			<li class="span3">
+				<p><b>0</b><br/><span>总数</span></p>
+			</li>
+			<li class="span3 job-middle-li-right">
+				<p><b>0</b><br/><span>在线</span></p>
+			</li>
+			<li class="span3">
+				<p><b>0</b><br/><span>离线</span></p>
+			</li>
+			<li class="span3 job-middle-li">
+				<p><b>0</b><br/><span>超标</span></p>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<ul class="bui-list nav-list">
+			<li class="bui-btn bui-box" tapmode onclick="enterpriseList()">
+					<div class="icon"><i class="icon icon-tishi">&#xe60c;</i></div>
+					<div class="span1" id="enterprise">企业数量  (<span>0</span>)</div>
+					<i class="icon-listright"></i>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<div id="uiTab" class="bui-tab">
+        <div class="bui-tab-head">
+            <ul class="bui-nav">
+                <li class="bui-btn" value='0'>全部设备</li>
+                <li class="bui-btn" value='1'>在线设备</li>
+                <li class="bui-btn" value='2'>离线设备</li>
+                <li class="bui-btn" value='3'>超标设备</li>
+            </ul>
+        </div>
+        <div class="bui-tab-main">
+            <ul>
+                <!-- 内容必须在li里面 -->
+                <li class="bui-tab-main-li">
+									<div id="uiSearchbar" class="bui-searchbar bui-box wrap-search">
+						            <div class="span1">
+						                <div class="bui-input">
+						                    <i class="icon-search"></i>
+						                    <input type="search" value="" placeholder="请输入企业名"/>
+						                </div>
+						            </div>
+						            <div class="btn-search">搜索</div>
+						        </div>
+										<div class="line"></div>
+										<div class="bui-list"  id="content">
+			                <!-- <div class="bui-box recommend-item">
+			                    <div class="span1">
+															<h6 class="recommend-title bui-box-text-hide">海底捞海底捞<span class="state-tip">关</span></h6>
+															<p class="recommend-service">设备编号：123456</p>
+			                        <p class="recommend-address">地址：复城国际</p>
+			                        <div class="tags">
+			                            <span class="tag-item">排风机<span class="state-tip">关</span></span>
+																	<span class="tag-item">净化器<span class="state-tip">关</span></span>
+			                        </div>
+															<p class="recommend-time">数据采集时间：2019-12-12 00:00:00</p>
+			                    </div>
+			                    <div class="pic-box tip-box ring">
+															<canvas id="tutorial"></canvas>
+															<span class="fraction"><span class="number">0</span><br/><span class="small">mg/m³</span> </span>
+															<span class="title">油烟浓度</span>
+			                    </div>
+			                </div>
+											<div class="bui-box recommend-item">
+			                    <div class="span1">
+														<h6 class="recommend-title bui-box-text-hide">海底捞海底捞<span class="state-tip">关</span></h6>
+														<p class="recommend-service">设备编号：123456</p>
+			                        <p class="recommend-address">地址：复城国际</p>
+			                        <div class="tags">
+			                            <span class="tag-item">排风机<span class="state-tip">关</span></span>
+			                            <span class="tag-item">颗粒物<span class="state-tip green">0.1mg/m³</span></span>
+			                        </div>
+															<div class="tags">
+			                            <span class="tag-item">净化器<span class="state-tip">关</span></span>
+			                            <span class="tag-item">VOC<span class="state-tip green">100mg/m³</span></span>
+			                        </div>
+															<p class="recommend-time">数据采集时间：2019-12-12 00:00:00</p>
+			                    </div>
+			                    <div class="pic-box tip-box ring">
+															<canvas id="tutorial"></canvas>
+															<span class="fraction"><span class="number">0</span><br/><span class="small">mg/m³</span> </span>
+															<span class="title">油烟浓度</span>
+			                    </div>
+			                </div> -->
+									</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+	</div>
+
+<script id="tpl" type="text/x-dot-template">
+{{ if(it.length < 1){ }}
+		<div class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></div>
+{{ } }}
+{{for(var p in it){ }}
+	<div class="bui-box recommend-item" tapmode onclick="onDetail('{{=it[p].deviceCode}}');">
+			<div class="span1">
+				{{ if(it[p].enterpriseName){ }}
+					<h6 class="recommend-title bui-box-text-hide">{{=it[p].enterpriseName}}
+						{{ if(it[p].onlineStatus == 0){ }}
+								<span class="state-tip">离线</span>
+						{{ }else { }}
+								<span class="state-tip open">在线</span>
+						{{ } }}
+					</h6>
+				{{ } }}
+					<p class="recommend-service">设备编号：{{=it[p].deviceCode}}</p>
+					<div class="tags">
+							<span class="tag-item">风机
+							{{ if(it[p].fanStatus == 1){ }}
+									<span class="state-tip open">开</span>
+							{{ }else { }}
+									<span class="state-tip">关</span>
+							{{ } }}
+							</span>
+							<span class="tag-item">净化器
+								{{ if(it[p].purifierStatus == 1){ }}
+										<span class="state-tip open">开</span>
+								{{ }else { }}
+										<span class="state-tip">关</span>
+								{{ } }}
+							</span>
+					</div>
+					<p class="recommend-time">数据采集时间：{{=it[p].uploadTime}}</p>
+			</div>
+			<div class="pic-box tip-box ring">
+					<canvas id="{{='tutorial'+p}}"></canvas>
+					<span class="fraction"><span class="number">{{=it[p].lampblack}}</span><br/><span class="small">mg/m³</span> </span>
+					<span class="title">油烟浓度</span>
+			</div>
+	</div>
+	{{ } }}
+</script>
+
+<script type="text/javascript">
+
+var mainData = {}, uiTab = null, tabIndex = 0;
+var deviceTotalList = [],onlineTotalList = [],offlineTotalList = [],beyondTotalList = [],searchValue = '';
+var uiSearchbar = bui.searchbar({
+      id:"#uiSearchbar",
+      callback: function (ui,keyword) {
+        // 点击搜索
+				searchValue = keyword;
+        filterList();
+      },
+      onInput: function(ui,keyword) {
+        // 输入实时搜索
+      },
+      onRemove: function(ui,keyword) {
+        // 删除关键词需要做什么其它处理
+      }
+  });
+	apiready = function () {
+		//获取统计数据
+		getData();
+
+		//监听下拉刷新
+		api.setRefreshHeaderInfo({
+			visible : true,
+			loadingImg : 'widget://image/arrow-down-o.png',
+			bgColor : '#39a4ff',
+			textColor : '#fff',
+			textDown : '下拉更多',
+			textUp : '松开刷新',
+			showTime : false
+		}, function(ret, err) {
+			getData();
+		});
+
+		api.addEventListener({
+        name: 'loderPage'
+    }, function (ret, err) {
+        getData();
+    });
+
+	}
+
+	//获取统计数据
+	function getData(){
+		// 取消下拉刷新效果
+	  api.refreshHeaderLoadDone();
+		var userData = $api.getStorage('mine');
+		ajaxRequest('post', {
+				apiCode: 'GIS_MONITOR_POINT',
+				userId: userData.userId,
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					mainData = ret.result;
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(ret.result));
+
+					deviceTotalList = [];
+					onlineTotalList = [];
+					offlineTotalList = [];
+					beyondTotalList = [];
+					searchValue = '';
+					for(var i=0;i<mainData.length;i++){
+						if(mainData[i].onlineStatus === 1){//在线列表
+							onlineTotalList.push(mainData[i]);
+						}else if(mainData[i].onlineStatus === 0){//离线列表
+							offlineTotalList.push(mainData[i]);
+						}
+						if(mainData[i].deviceStatus === 2){//超标列表
+							beyondTotalList.push(mainData[i]);
+						}
+					}
+
+					$('.job-ul').find('li').eq(0).find('b').text(ret.result.length);
+					$('.job-ul').find('li').eq(1).find('b').text(onlineTotalList.length);
+					$('.job-ul').find('li').eq(2).find('b').text(offlineTotalList.length);
+					$('.job-ul').find('li').eq(3).find('b').text(beyondTotalList.length);
+
+					for(var i=0;i<mainData.length;i++){
+						randerRing('tutorial'+i,mainData[i].lampblack,mainData[i].threshold);
+					}
+
+					uiTab = bui.tab({
+									id:"#uiTab",
+									swipe: false
+							});
+					$('.bui-tab').css({overflow:'auto',height:'auto'});
+					$('.bui-tab-main-li').css({overflow:'auto',height:'auto'});
+					uiSearchbar.reset();
+
+					api.sendEvent({
+							name: 'mapData',
+							extra: {
+								deviceTotalList : deviceTotalList,
+								onlineTotalList : onlineTotalList,
+								offlineTotalList : offlineTotalList,
+								beyondTotalList : beyondTotalList,
+							}
+					});
+
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+		ajaxRequest('post', {
+				apiCode: 'APP_HOME',
+				userId: userData.userId,
+				requestData: {}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					$('#enterprise').find('span').text(ret.result.enterpriseTotal);
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+	$('.bui-nav li').on('click',function() {
+		uiSearchbar.reset();
+		searchValue = '';
+		tabIndex = $(this).attr('value');
+		filterList();
+	})
+function filterList(){
+	var list = [];
+	if(tabIndex == 0){//全部
+		list = mainData;
+	}else if(tabIndex == 1){//在线
+		list = onlineTotalList;
+	}else if(tabIndex == 2){//离线
+		list = offlineTotalList;
+	}else if(tabIndex == 3){//离线
+		list = beyondTotalList;
+	}
+	var result = [];
+	for(var i=0; i<list.length; i++){
+		if((list[i].enterpriseName || '').indexOf(searchValue) > -1){
+			result.push(list[i]);
+		}
+	}
+
+	var tpl = $('#tpl').html();
+	var content = doT.template(tpl);
+	$('#content').html(content(result));
+
+	for(var i=0;i<result.length;i++){
+		randerRing('tutorial'+i,result[i].lampblack,result[i].threshold);
+	}
+}
+
+//详情
+function onDetail(deviceCode){
+	var item = {};
+	for(var i=0;i<mainData.length;i++){
+		if(mainData[i].deviceCode == deviceCode){
+			item = mainData[i];
+		}
+	}
+	api.openWin({
+			name: 'device-detail',
+			url: './device-detail.html',
+			pageParam: item
+	});
+}
+
+//进入企业列表
+function enterpriseList(){
+	api.openWin({
+			name: 'enterprise-list',
+			url: './enterprise-list.html',
+	});
+}
+
+function randerRing(canva,lampblack,threshold){
+	if(!$('.ring')){ return false;}
+	var width = $('.ring').width();
+	var radius = width/2.2; //外环半径
+	var thickness = 10 //圆环厚度
+	var innerRadius = radius - thickness //内环半径
+	var startAngle = -90 //开始角度
+	var endAngle = 180 //结束角度
+	var x = 0 //圆心x坐标
+	var y = 0 //圆心y坐标
+	var canvas = document.getElementById(canva);
+	canvas.width = width;
+	canvas.height = width;
+	var ctx = canvas.getContext('2d');
+
+	ctx.translate(canvas.width / 2, canvas.height / 2); //将绘图原点移到画布中央
+	ctx.rotate(angle2Radian(225)) //将画布旋转225度
+	ctx.fillStyle = "#eee"; //初始填充颜色
+	renderRing(startAngle, endAngle)
+
+	//渲染函数
+	function renderRing(startAngle, endAngle) {
+		ctx.beginPath();
+		//绘制外环
+		ctx.arc(x, y, radius, angle2Radian(startAngle), angle2Radian(endAngle))
+
+		//计算外环与内环第一个连接处的中心坐标
+		var oneCtrlPoint = calcRingPoint(x, y, innerRadius + thickness / 2, endAngle)
+
+		//绘制外环与内环第一个连接处的圆环
+		ctx.arc(oneCtrlPoint.x, oneCtrlPoint.y, thickness / 2, angle2Radian(-90), angle2Radian(270))
+
+		// //绘制内环
+		ctx.arc(x, y, innerRadius, angle2Radian(endAngle), angle2Radian(startAngle), true)
+
+		//计算外环与内环第二个连接处的中心坐标
+		var twoCtrlPoint = calcRingPoint(x, y, innerRadius + thickness / 2, startAngle)
+
+		//绘制外环与内环第二个连接处的圆环
+		ctx.arc(twoCtrlPoint.x, twoCtrlPoint.y, thickness / 2, angle2Radian(-90), angle2Radian(270))
+
+		ctx.fill();
+		// 清除毛边
+		ctx.globalCompositeOperation = 'source-atop';
+			// ctx.stroke()
+	}
+
+	//计算圆环上点的坐标
+	function calcRingPoint(x, y, radius, angle) {
+		var res = {}
+		res.x = x + radius * Math.cos(angle * Math.PI / 180)
+		res.y = y + radius * Math.sin(angle * Math.PI / 180)
+		return res
+	}
+
+	//弧度转角度
+	function radian2Angle(radian) {
+		return 180 * radian / Math.PI
+	}
+
+	//角度转弧度
+	function angle2Radian(angle) {
+		return angle * Math.PI / 180
+	}
+
+	//开始绘画
+	var tempAngle = startAngle
+	var total = 100;
+	var now = lampblack;
+
+	var lingrad = ctx.createLinearGradient(180, 50, 100, 180);
+
+	// 1、油烟为0时  圆环显示全灰色
+	// 2、油烟小于阈值  圆环灰色背景 根据油烟/阈值占比 显示蓝色圆弧
+	// 3、油烟大于等于法制 圆环全红色
+	// 4、油烟浓度按实际显示
+
+	if(lampblack == 0){
+		now = 0;
+		lingrad.addColorStop(0,"#eee");
+		lingrad.addColorStop(1,"#eee");
+	}else{
+		if(lampblack < threshold){
+			now = lampblack;
+			total = threshold;
+			lingrad.addColorStop(0,"blue");
+			lingrad.addColorStop(1,"blue");
+		}
+		if(lampblack >= threshold){
+			now = lampblack;
+			total = lampblack;
+			lingrad.addColorStop(0,"red");
+			lingrad.addColorStop(1,"red");
+		}
+	}
+
+	ctx.fillStyle = lingrad
+
+	var percent = now / total //百分比
+	var twoEndAngle = percent * 270 + startAngle
+	var step = (twoEndAngle - startAngle) / 80
+	var numberSpan = document.querySelector('.number')
+	var inter = setInterval(function(){
+		if (tempAngle > twoEndAngle) {
+			clearInterval(inter)
+		} else {
+			// numberSpan.innerText = percent * 100
+			tempAngle += step
+		}
+		renderRing(startAngle, tempAngle)
+	}, 1)
+}
+</script>
+</body>
+</html>

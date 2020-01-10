@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>login</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+		.login-page main{
+				background: #fff;
+		    /*background-size: 100% 100%;*/
+		}
+		.login-page .logo h1{
+		    font-size: .62rem;
+		    padding-left: .3rem;
+				color: #fff;
+		}
+		.logo{
+		    height: 2rem;
+		    margin: 1.2rem auto 1rem auto;
+		    text-align: center;
+		}
+		.logo img{
+		    height: 4rem;
+		}
+		.login-form {
+		    padding-left: .6rem;
+		    padding-right: .6rem;
+		}
+		.login-form .bui-list{
+		    border-top: none;
+		    margin-bottom: .7rem;
+				margin-top: 3rem;
+		}
+		.login-form > .bui-btn{
+		    margin-bottom: .3rem;
+		}
+		.login-form .bui-btn-text{
+		    margin-bottom: .2rem;
+		}
+		.bui-list>[class*=bui-btn]:last-child {
+		}
+		.login-form .bui-label{
+		    width: 0.5rem;
+		    margin-right: .2rem;
+		}
+		.login-form .icon-face,
+		.login-form .icon-lock{
+		    font-size: 0.48rem;
+		}
+		.login-form .bui-input {
+		    height: .6rem;
+		    background: none;
+		}
+		.login-form .bui-btn-text{
+		    text-align: center;
+		    color: #666666;
+		    font-size: 0.2rem;
+		}
+		.copyright{
+		    font-size: 0.17rem;
+		    color: #999999;
+		    width: 100%;
+		    text-align: center;
+		    background-color: #ffffff;
+		    padding-bottom: 0.25rem;
+		}
+
+		.icon-eye:before {
+		    content: "\e680"
+		}
+		.icon-eye.active:before {
+		    content: "\e67f"
+		}
+		.footer-tip{
+			position: absolute;
+			bottom: .3rem;
+			left: 0;
+			width: 100%;
+			text-align: center;
+		}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+
+	<div class="bui-page login-page">
+	    <main>
+	        <div class="logo bui-box-center">
+	          <img src="../image/logo1.png" alt="">
+	        </div>
+	        <div class="login-form">
+	            <ul class="bui-list">
+	                <li class="bui-btn bui-box clearactive">
+	                    <label class="bui-label" for="user"><i class="icon-face"></i></label>
+	                    <div class="span1">
+	                        <div class="bui-input user-input">
+	                            <input id="user" type="text" placeholder="用户名">
+	                        </div>
+	                    </div>
+	                </li>
+	                <li class="bui-btn bui-box clearactive">
+	                    <label class="bui-label" for="password"><i class="icon-lock"></i></label>
+	                    <div class="span1">
+	                        <div class="bui-input password-input">
+	                            <input id="password" type="password" placeholder="密码">
+	                        </div>
+	                    </div>
+	                </li>
+	            </ul>
+	            <div class="bui-btn round primary" onclick="login()" tapmode="">登录</div>
+	            <!-- <div class="bui-btn-text">注册</div> -->
+	            <!-- <div class="bui-btn-text">忘记密码</div> -->
+							<div class="footer-tip">江苏德劭信息科技有限公司</div>
+	        </div>
+	    </main>
+	</div>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+var clickCount = 1;
+var timePicker;
+
+function login() {
+	var loginName = $.trim($('#user').val());
+	var password = $.trim($('#password').val());
+	if (loginName == '') {
+			api.toast({
+					msg: '请输入用户名',
+					location: 'middle'
+			});
+			return false;
+	}
+	if (password == '') {
+			api.toast({
+					msg: '请输入密码',
+					location: 'middle'
+			});
+			return false;
+	}
+	api.showProgress({
+			title: '登录中',
+			model: true
+	});
+	ajaxRequest('post', {
+			apiCode: 'LOGIN',
+			requestData: {
+				loginName: loginName,
+				password: password
+			}
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				ret.result.loginName = loginName;
+				ret.result.password = password;
+				$api.setStorage('mine', ret.result);
+				api.openWin({
+						name: 'index',
+						url: '../index.html',
+						delay: 200
+				});
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+bui.ready(function(){
+    // 手机号,帐号是同个样式名, 获取值的时候,取的是最后一个focus的值
+    var userInput = bui.input({
+        id: ".user-input",
+        callback: function(e) {
+            // 清空数据
+            this.empty();
+        }
+    })
+    // 密码显示或者隐藏
+    var password = bui.input({
+          id: ".password-input",
+          iconClass: ".icon-eye",
+          callback: function(e) {
+              //切换类型
+              this.toggleType();
+              $(e.target).toggleClass("active")
+          }
+      })
+})
+
+apiready = function(){
+	api.addEventListener({
+			name: 'keyback'
+	}, function (ret, err) {
+			clearTimeout(timePicker);
+			//coding... auth:yx
+			if (clickCount != 2) {
+					api.toast({
+							msg: '再按一次返回系统桌面'
+					}, 'middle');
+					clickCount++;
+					timePicker = setTimeout(function () {
+							clickCount = 1;
+					}, 1000);
+			} else {
+					clickCount = 1;
+					api.toLauncher();
+			}
+	});
+}
+
+apiready = function(){
+	api.addEventListener({
+			name: 'keyback'
+	}, function (ret, err) {
+			clearTimeout(timePicker);
+			//coding... auth:yx
+			if (clickCount != 2) {
+					api.toast({
+							msg: '再按一次返回系统桌面'
+					}, 'middle');
+					clickCount++;
+					timePicker = setTimeout(function () {
+							clickCount = 1;
+					}, 1000);
+			} else {
+					clickCount = 1;
+					api.toLauncher();
+			}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>limit-info</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.bui-list>[class*=bui-btn]:last-child{
+					border-bottom: 1px solid #eee;
+				}
+				.bui-box p{
+					color: #666;
+				}
+				.bui-box p span{
+					color: #000;
+					font-weight: bold;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-box .hui{
+					color: #eee;
+					font-weight: bold;
+				}
+
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">超标企业列表</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<main>
+		<ul class="bui-list" id="content">
+          <!-- <li class="bui-btn bui-box">
+              <div class="span1">
+                  <h3 class="item-title">澳门(一年一次)</h3>
+                  <p>超标次数：<span>22</span></p>
+                  <p>变化趋势：<span class="green">↓</span><span class="red">↑</span></p>
+              </div>
+              <i class="icon-listright"></i>
+          </li> -->
+      </ul>
+	</main>
+
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+	{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+	{{ } }}
+	{{for(var p in it){ }}
+		<li class="bui-btn bui-box" tapmode onclick="onDetail('{{=it[p].enterpriseName}}');">
+				<div class="span1">
+						<h3 class="item-title">{{=it[p].enterpriseName}}</h3>
+						<p>超标次数：<span>{{=it[p].beyondRecords.length}}</span></p>
+						<p>最新上报时间：{{=it[p].beyondRecords[0].uploadTime}}
+						</p>
+				</div>
+				<i class="icon-listright"></i>
+		</li>
+		{{ } }}
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = {};
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		getData();
+	}
+
+	function getData(){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: 'APP_BEYOND',
+				userId: userData.userId,
+				requestData: {pageSize: 999, pageNo: 1}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					data = ret.result || [];
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(data));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	//详情
+	function onDetail(enterpriseName){
+		var item = {};
+		for(var i=0;i<data.length;i++){
+			if(data[i].enterpriseName == enterpriseName){
+				item = data[i];
+			}
+		}
+		api.openWin({
+				name: 'limit-detail',
+				url: './limit-detail.html',
+				pageParam: item
+		});
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

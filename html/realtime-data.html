@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>realtime-data</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.bui-list>[class*=bui-btn]:last-child{
+					border-bottom: 1px solid #eee;
+				}
+				.bui-box p{
+					color: #666;
+					padding: .1rem 0;
+				}
+				.bui-box p .bui-value{
+					color: #000;
+					font-weight: bold;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-box .hui{
+					color: #eee;
+					font-weight: bold;
+				}
+				.span1{
+					position: relative;
+				}
+				.bui-box .span1 h3.item-title{
+					width: 4.4rem;
+				}
+				.item-tip{
+			    text-align: center;;
+			    border-radius: 20px;
+			    background: #f56c6c;
+			    color: #ffffff;
+			    padding: .08rem .18rem;
+					position: absolute;
+					right: .2rem;
+					bottom: .2rem;
+				}
+				.item-time{
+					position: absolute;
+					right: .2rem;
+					top: .1rem;
+				}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">实时监测数据</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<main>
+		<ul class="bui-list" id="content">
+          <!-- <li class="bui-btn bui-box">
+						<div class="span1">
+								<h3 class="item-title">澳门(一年一次)</h3>
+								<div class="item-time">2018-02-02 15:04</div>
+								<p class="item-text">净化器编号：<span class="bui-value">W25416525</span</p>
+								<p class="item-text">净化效能：<span class="bui-value"><b class="red">4.54</b></span></p>
+								<p class="item-text">油烟指数：<span class="bui-value"><b class="red">4.54</b> mg/m³</span></p>
+								<div class="item-tip">超标2.1倍</div>
+						</div>
+          </li> -->
+      </ul>
+	</main>
+
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+	{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+	{{ } }}
+	{{for(var p in it){ }}
+		<li class="bui-btn bui-box">
+			<div class="span1">
+					<h3 class="item-title">{{=it[p].enterpriseName}}</h3>
+					<div class="item-time">{{=it[p].uploadTime}}</div>
+					<p class="item-text">净化器编号：<span class="bui-value">{{=it[p].deviceCode}}</span</p>
+					<p class="item-text">设备状态：<span class="bui-value"><b class="red">{{=setDeviceStatus(it[p].deviceStatus)}}</b></span></p>
+					<p class="item-text">油烟指数：<span class="bui-value"><b class="red">{{=it[p].lampblack}}</b> mg/m³</span></p>
+					{{ if(it[p].beyondMultiple >= 1){ }}
+						<div class="item-tip">超标{{=it[p].beyondMultiple}}倍</div>
+					{{ } }}
+			</div>
+		</li>
+		{{ } }}
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = {};
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		data = api.pageParam.data;
+		var tpl = $('#tpl').html();
+		var content = doT.template(tpl);
+		$('#content').html(content(data));
+	}
+	function setDeviceStatus(status){
+		if(status == 1){
+			return '正常';
+		}else if(status == 2){
+			return '离线';
+		}else if(status == 3){
+			return '预警';
+		}else if(status == 4){
+			return '超标';
+		}
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>month-report-list</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/rolldate.min.js"></script>
+		<style type="text/css">
+			.list-main{
+				background: #eee;
+			}
+			#content{
+				padding-bottom: 1rem;
+			}
+			.list-main .img-list.bui-fluid>[class*=bui-btn].bui-box-vertical{
+				margin: .2rem .3rem 0 .3rem;
+				padding: .3rem 0;
+				border-radius: .2rem;
+			}
+			.list-main .img-list li h4{
+				font-size: .4rem;
+				font-weight: bold;
+			}
+			.list-main .img-list li h3{
+				font-size: .26rem;
+				font-weight: bold;
+				padding: .1rem;
+			}
+			.list-main .img-list li a{
+				padding: .1rem .2rem;
+				background: #39a4ff;
+				width: 2rem;
+				color: #fff;
+				margin: 0 auto;
+				border-radius: .3rem;
+				margin-top: .2rem;
+			}
+
+		</style>
+	</head>
+<body style="background-color:#eee;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">月报</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<div class="bui-box">
+				<ul class="bui-list bui-select-form span1">
+            <li class="bui-btn bui-box">
+                <label>选择年份</label>
+                <div class="span1"><input type="text" id="datepicker_input" readonly class="bui-input" style="text-align:right;"></div>
+                <i class="icon-listright"></i>
+            </li>
+        </ul>
+    </div>
+		<main class="list-main">
+			<ul class="bui-nav shortcut-nav bui-fluid img-list" id="content">
+					<!-- <li class="bui-btn bui-box-vertical span5" tapmode onclick="toSee('{{=it[p].id}}');">
+						<h4>2019年</h4>
+						<h3>12月月报</h3>
+						<a href="javascript:;" tapmode onclick="toSee('{{=it[p].id}}');">查看</a>
+					</li> -->
+			</ul>
+		</main>
+	<script id="tpl" type="text/x-dot-template">
+		{{ if(it.length < 1){ }}
+			<li class="no-data" style="padding-top:1rem;"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+		{{ } }}
+		{{for(var p in it){ }}
+			<li class="bui-btn bui-box-vertical span5" tapmode onclick="toSee('{{=it[p].id}}');">
+				<h4>{{=it[p].year}}年</h4>
+				<h3>{{=it[p].cycle}}月月报</h3>
+				<a href="javascript:;" tapmode onclick="toSee('{{=it[p].id}}');">查看</a>
+			</li>
+		{{ } }}
+	</script>
+	</div>
+
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+
+	var enterpriseId = '', status = '', curId = '', purifierFaultStatus='',fanFaultStatus='';
+
+	var year = '2019';
+	var data = [];
+	apiready = function(){
+	    var header = $api.byId('header');
+			$api.fixStatusBar(header);
+	    api.setStatusBarStyle({
+	        style: 'light'
+	    });
+
+			getData();
+
+			new Rolldate({
+				el: '#datepicker_input',
+				format: 'YYYY',
+				beginYear: 2000,
+				endYear: 2100,
+				value: year,
+				confirm: function(date) {
+					year = date;
+					getData();
+				},
+			})
+
+	};
+
+	function getData(){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: "REPORT_LIST",
+				userId: userData.userId,
+				requestData: {
+					type: 2,
+					year: year,
+				}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					data = ret.result || [];
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(ret.result || []));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	//去查看
+	function toSee(id){
+		var item = {};
+		for(var i=0;i<data.length;i++){
+			if(data[i].id == id){
+				item = data[i]
+			}
+		}
+		api.openWin({
+		    name: 'month-report-detail',
+		    url: './month-report-detail.html',
+		    pageParam: {
+		        id: id,
+						item: item
+		    }
+		});
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+</script>
+</body>
+</html>

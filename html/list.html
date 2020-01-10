@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>list</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div style="height: 100%;">
+		<header id="header" class="bui-bar">
+			<div class="bui-bar-left">
+			</div>
+			<div class="bui-bar-main">
+				<ul id="tabHeadNav" class="bui-nav" style="width: 60%;">
+					<li class="bui-btn active" value="1">待办工单</li>
+					<li class="bui-btn " value="2">已办工单</li>
+				</ul>
+			</div>
+			<div class="bui-bar-right">
+			</div>
+		</header>
+	</div>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+	//按钮在tab外层,需要传id
+	var tab = bui.tab({
+			id: "#tabHead",
+			menu: "#tabHeadNav",
+	})
+
+	apiready = function(){
+		var header = $api.byId('header');
+		$api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+		api.setStatusBarStyle({
+				style: 'light'
+		});
+		var headerPos = $api.offset(header);
+		var width = api.winWidth;
+		var height = api.frameHeight - headerPos.h;
+
+		var param = api.pageParam;
+		api.openFrame({
+				name: 'list-f',
+				url: './list-f.html',
+				bounces: false,
+				opaque: true,
+				reload: true,
+				vScrollBarEnabled: false,
+				bgColor: '#fff',
+				rect: {
+						x: 0,
+						y: headerPos.h,
+						w: width,
+						h: height
+				},
+				pageParam: param,
+		});
+
+		$('#tabHeadNav li').on('click',function(){
+			var index = $(this).index();
+			api.sendEvent({
+			    name: 'tabHeadNav',
+			    extra: index
+			});
+		})
+
+	};
+
+
+</script>
+</body>
+</html>

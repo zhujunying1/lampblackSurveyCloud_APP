@@ -1,0 +1,393 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>user</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.bui-page{
+				overflow: hidden;
+			}
+		    .personal-info{
+		        margin-top: 0;
+		        margin-bottom: .2rem;
+		    }
+		    .personal-info .bui-btn {
+		        padding-top: .3rem;
+		        padding-bottom: .3rem;
+		    }
+		    .personal-info .icon {
+		        margin-right: 0;
+		    }
+		    .contact-list{
+		        border-top: none;
+		        margin-bottom: .2rem;
+		        padding: 0 0.2rem;
+		        background-color: #ffffff;
+		    }
+		    .contact-list .bui-btn{
+		        padding-left: 0;
+		        padding-top: .3rem;
+		        padding-bottom: .3rem;
+		    }
+		    .contact-list li:last-child{
+		        border-bottom: none;
+		    }
+				.bui-btn.bui-box i.icon{
+					font-size: .44rem;
+					color: #259AF3;
+				}
+				.span1 .bui-value{
+					text-align: right;
+				}
+				.personal-header {
+		        margin-top: .2rem;
+		        margin-bottom: .2rem;
+						background: #fff;
+						width: 100%;
+		    }
+
+		    .personal-header .personal-img img {
+					border-radius: 50%;
+					overflow: hidden;
+					margin: .2rem;
+					width: 1.5rem;
+					height: 1.5rem;
+		    }
+		    .personal-header p {
+		        text-align: center;
+		        margin-bottom: 0.1rem;
+		    }
+		    .personal-header .name {
+					position: absolute;
+					top: .6rem;
+					left: 2rem;
+					font-size: .4rem;
+					font-weight: bold;
+		    }
+				.personal-header .name-p {
+					position: absolute;
+			    top: 1.4rem;
+			    left: 2rem;
+			    font-size: .24rem;
+		    }
+				.personal-header .name-i{
+					position: absolute;
+			    right: .2rem;
+			    top: 1rem;
+				}
+		    .personal-header .grade {
+		        font-size: 0.2rem;
+		    }
+
+		    .nav-list {
+		        border-top: none;
+		        margin-top: 0.2rem;
+		        padding: 0 0.2rem;
+		        background-color: #ffffff;
+		    }
+
+		    .nav-list .bui-btn {
+		        padding-left: 0;
+		        padding-right: 0;
+		    }
+
+		    .nav-list li:first-child {
+		        border-top: none;
+		    }
+
+		    .nav-list .icon i {
+		        font-size: 0.4rem;
+		    }
+
+		    .nav-list .icon {
+		        height: 0.42rem;
+		    }
+
+		    .nav-list .bui-btn {
+		        border: none;
+		        border-top: 1px solid #efefef;
+		    }
+
+				.bui-list .icon{
+					line-height: .58rem;
+				}
+		</style>
+	</head>
+<body style="background-color:#eee;">
+	<div class="bui-page">
+		<div class="personal-header" id="content"  tapmode onclick="goInfo()"></div>
+		<ul class="bui-list">
+				<!-- <li class="bui-btn bui-box ">
+						<div class="icon"><i class="icon">&#xe633;</i></div>
+						<div class="span1">公告通知</div>
+						<i class="icon-listright"></i>
+				</li> -->
+				<li class="bui-btn bui-box" tapmode onclick="clear()">
+						<div class="icon"><i class="icon icon-thinblue">&#xe638;</i></div>
+						<div class="span1">清除缓存</div>
+						<i class="icon-listright"></i>
+				</li>
+				<li class="bui-btn bui-box" tapmode onclick="toast()">
+						<div class="icon"><i class="icon icon-green">&#xe62d;</i></div>
+						<div class="span1">检测更新</div>
+						<i class="icon-listright"></i>
+				</li>
+				<li class="bui-btn bui-box">
+						<div class="icon"><i class="icon icon-red">&#xe65c;</i></div>
+						<div class="span1">关于我们</div>
+						<i class="icon-listright"></i>
+				</li>
+		</ul>
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+				<div class="personal-img">
+						<img src="../image/avater.png">
+				</div>
+				<p class="name">{{=it.cname}}</p>
+				<p class="name-p">点击查看个人信息</p>
+				<i class="icon-listright name-i"></i>
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = {};
+	var UIActionProgress, value = 0;
+	apiready = function(){
+
+		var userData = $api.getStorage('mine');
+		data = {
+			cname: userData.cname || '',
+			mobile: userData.mobile || '',
+			email: userData.email || '',
+			password: userData.password || '',
+		}
+
+		var tpl = $('#tpl').html();
+		var content = doT.template(tpl);
+		$('#content').html(content(data));
+
+		//引入UIActionProgress模块
+    UIActionProgress = api.require('UIActionProgress');
+	}
+		//退出登陆
+		$('#loginOut').on("click", function() {
+				bui.confirm("您确定要退出登陆吗？", function(e) {
+						//this 是指点击的按钮
+						var text = $(e.target).text();
+						var userData = $api.getStorage('mine');
+						if (text == "确定") {
+							ajaxRequest('post', {
+									apiCode: 'LOGOUT',
+									userId: userData.userId,
+									requestData: {
+										loginName: userData.loginName,
+										userId: userData.userId
+									}
+							}, function (ret, err) {
+									api.hideProgress();
+									if (ret.code == 200) {
+										$api.clearStorage();
+										api.removeLaunchView({
+								        animation: {
+								            type: 'fade',
+								            duration: 500
+								        }
+								    });
+										api.openWin({
+								        name: 'login',
+								        url: './login.html',
+								        opaque: true,
+								        vScrollBarEnabled:false
+								    });
+									} else {
+										api.toast({
+												msg: ret.message,
+												location: 'middle'
+										});
+										return false;
+									}
+							});
+						}
+						this.close()
+				});
+		})
+
+		function goInfo(){
+			api.openWin({
+			    name: 'user-info',
+			    url: './user-info.html',
+			});
+		}
+
+		//修改信息
+		function set(){
+			api.openWin({
+			    name: 'set',
+			    url: './set.html',
+			    pageParam: {
+			        data: data
+			    }
+			});
+		}
+
+		function toast () {
+			var userData = $api.getStorage('mine');
+			ajaxRequest('post', {
+					apiCode: 'APP_VERSION',
+					userId: userData.userId,
+					requestData: {}
+			}, function (ret, err) {
+					api.hideProgress();
+					if (ret.code == 200) {
+						var appVersion = api.appVersion;
+						console.log(appVersion)
+						console.log(ret.result.version)
+						if(ret.result.version == appVersion){
+							api.toast({
+					        msg: '您当前已为最新版本',
+					        duration:1000,
+					    });
+						}else{
+							var result = ret.result;
+							var updateTip;
+						  updateTip = result.content.replace(/\r\n/g,"<BR>");
+						  updateTip =updateTip.replace(/\n/g,"<BR>");
+							bui.confirm({
+				           content: '有新版本啦！<br/>最新版本:'+result.version+'<br/>更新描述:'+updateTip+'<br/>发布时间:'+result.modifyTime,
+				           title:"更新提示",
+									 "height": 560,
+				           buttons:["取消","立即更新"],
+				           callback:function(e){
+				               var text = $(e.target).text();
+				               if( text == "立即更新"){
+												 if (api.systemType == "android") {
+													 UIActionProgress.open({
+					                     maskBg : 'rgba(0,0,0,0.4)',
+					                     styles : {
+					                             h : 108,
+					                             bg : '#fff',
+					                             title : {
+					                                     size : 14,
+					                                     color : '#000',
+					                                     marginT : 10
+					                             },
+					                             msg : {
+					                                     size : 12,
+					                                     color : '#666',
+					                                     marginT : 5
+					                             },
+					                             lable : {
+					                                     size : 12,
+					                                     color : '#696969',
+					                                     marginB : 5
+					                             },
+					                             progressBar : {
+					                                     size : 4,
+					                                     normal : '#ccc',
+					                                     active : '#03a9f4',
+					                                     marginB : 15,
+					                                     margin : 5
+					                             }
+					                     },
+					                     data : {
+					                             title : '正在连接服务器...',
+					                             msg : '文件名',
+					                             value : 0
+					                     }
+					             		}, function(ret) {
+					                     if (ret.eventType == 'show') {
+																 api.download({
+																		//  url : 'https://1fcd1b076e6bca4cd80fa2f526c6d659.dd.cdntips.com/wxz.myapp.com/16891/apk/9D9FD675476B078B6BFDD52F6D002C0E.apk?mkey=5dcea8d17b7ebe42&f=0c58&fsname=com.android.genchaung.jishaoshortvideo_1.2.5_25.apk&hsr=4d5s&cip=123.126.152.183&proto=https',
+																		 url: result.url,
+																		 report : true
+																 }, function(retdownload, err) {
+																	 console.log(JSON.stringify(retdownload))
+																	 if(retdownload.state == 2){
+																		  api.toast({
+																		 		 msg : "更新失败！",
+																		 		 duration : 2000
+																		  });
+																			UIActionProgress.close();
+																			return;
+																	 }
+																		 if (retdownload && 0 == retdownload.state) {/* 下载进度 */
+																				 setData(retdownload.percent);
+																				//  api.toast({
+																				// 		 msg : "正在下载应用" + retdownload.percent + "%",
+																				// 		 duration : 2000
+																				//  });
+																		 }
+																		 if (retdownload && 1 == retdownload.state) {/* 下载完成 */
+																				 var savePath = retdownload.savePath;
+																				 api.installApp({
+																						 appUri : savePath
+																				 });
+																				 UIActionProgress.close();
+																		 }
+																 });
+					                     }
+							             });
+
+													 }
+				               }
+				               this.close();
+				           }
+				       })
+						}
+					} else {
+						api.toast({
+								msg: ret.message,
+								location: 'middle'
+						});
+						return false;
+					}
+			});
+
+		}
+		function clear () {
+			api.clearCache(function() {
+				api.toast({
+						msg: '清除完成'
+				});
+			});
+		}
+
+    //修改参数
+    function setData(value) {
+            if (value == 100) {
+                    UIActionProgress.setData({
+                            data : {
+                                    title : '下载完成',
+                                    msg : '文件名',
+                                    value : value
+                            }
+                    });
+                    setTimeout(function() {
+                            //关闭进度条模块
+                            closeUIActionProgress();
+                    }, 300);
+            } else {
+                    //修改进度条参数
+                    UIActionProgress.setData({
+                            data : {
+                                    title : '下载中...',
+                                    msg : '文件名',
+                                    value : value
+                            }
+                    });
+            }
+    };
+    //关闭模块
+    function closeUIActionProgress() {
+            UIActionProgress.close();
+    };
+
+	</script>
+</body>
+</html>

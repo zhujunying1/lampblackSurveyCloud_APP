@@ -1,0 +1,290 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>work</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/common.js"></script>
+		<style type="text/css">
+		    /* 快捷入口导航 */
+		    .shortcut-nav .bui-btn .icon{
+		        color: #ffffff;
+		        height: 1.2rem;
+		        width: 1.2rem;
+		        border-radius: .2rem;
+		        line-height: 1.2rem;
+		        margin: 0.3rem auto;
+		        font-size: 0.8rem;
+		    }
+		    .short1{
+		        background-color: #6cc96c;
+		    }
+		    .short2{
+		        background-color: #6cc96c;
+		    }
+		    .short3{
+		        background-color: #ffb33e;
+		    }
+		    .short4{
+		        background-color: #00a5e2;
+		    }
+		    .short5{
+		        background-color: #f57070;
+		    }
+		    .short6{
+		        background-color: #6cc96c;
+		    }
+
+		    /* 快捷入口 */
+		    .shortcut-nav .bui-box-vertical>[class*=span]{
+		        font-size: 0.32rem;
+		        padding-bottom: 0.3rem;
+		    }
+				.header-img{
+					width: 100%;
+					height: 3.8rem;
+	        background: #39a4ff;
+					color: #fff;
+				}
+				.job-num{
+					text-align: center;
+				}
+				.job-num h1{
+					font-size: 1.2rem;
+				}
+				.job-num h1 span{
+					font-size: .6rem;
+				}
+				.job-num p{
+					font-size: .26rem;
+				}
+				.job-num a{
+					width: 3rem;
+					height: .8rem;
+					border: 1px solid rgb(215,248,239);
+					border-radius: .4rem;
+					background: #66c0eb;
+					display: inline-block;
+					line-height: .8rem;
+					font-size: .3rem;
+					margin-top: .3rem;
+					color: #fff;
+				}
+				.job-ul{
+					padding-top: .5rem;
+				}
+				.job-ul li{
+					text-align: center;
+				}
+				.job-ul li p{
+					font-size: .4rem;
+				}
+				.job-ul li p span{
+					font-size: .24rem;
+				}
+				.job-middle-li{
+					border-left: 1px solid #fff;
+					border-right: 1px solid #fff;
+				}
+				.job-middle-li-right{
+					border-right: 1px solid #fff;
+				}
+				.bui-nav{
+					border-bottom: none;
+				}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page" id="content"></div>
+<script id="tpl" type="text/x-dot-template">
+	<div class="header-img">
+			<div class="job-num">
+					<h1>{{=it.waitHandleWorkOrderTotal}}<span>个</span></h1>
+					<p>待处理工单，请及时处理</p>
+					<a href="javascript:;" tapmode onclick="goDo('list')" >立即处理</a>
+			</div>
+
+	</div>
+	<!-- 快捷入口 -->
+	<ul class="bui-nav shortcut-nav bui-fluid">
+		<li class="bui-btn bui-box-vertical span6" tapmode onclick="exceedLimit()"><i class="icon short5">&#xe63f;<span class="bui-badges">{{=it.beyondTotal}}</span></i><div class="span1">超标</div></li>
+		<li class="bui-btn bui-box-vertical span6" tapmode onclick="repair()"><i class="icon short3">&#xe614;<span class="bui-badges">{{=it.waitRepairTotal}}</span></i><div class="span1">待维保</div></li>
+		<li class="bui-btn bui-box-vertical span6" tapmode onclick="weekReport()"><i class="icon short4">&#xe62d;</i><div class="span1">周报</div></li>
+		<li class="bui-btn bui-box-vertical span6" tapmode onclick="monthReport()"><i class="icon short1">&#xe68c;</i><div class="span1">月报</div></li>
+	</ul>
+</script>
+<!-- <ul class="bui-box job-ul">
+	<li class="span3" tapmode onclick="enterpriseList()">
+		<p>{{=it.enterpriseTotal}}<br/><span>企业数量</span></p>
+	</li>
+	<li class="span3 job-middle-li" tapmode onclick="deviceList('')">
+		<p>{{=it.deviceTotal}}<br/><span>设备数量</span></p>
+	</li>
+	<li class="span3 job-middle-li-right" tapmode onclick="deviceList(1)">
+		<p>{{=it.onlineTotal}}<br/><span>在线</span></p>
+	</li>
+	<li class="span3" tapmode onclick="deviceList(0)">
+		<p>{{=it.offlineTotal}}<br/><span>离线</span></p>
+	</li>
+</ul> -->
+<!-- <li class="bui-btn bui-box-vertical span6" tapmode onclick="realTimeData()"><i class="icon short4">&#xe62d;<span class="bui-badges">{{=it.realMonitor}}</span></i><div class="span1">实时监控</div></li>
+<li class="bui-btn bui-box-vertical span6" tapmode onclick="weekBeyondTrend()"><i class="icon short1">&#xe68c;</i><div class="span1">趋势预览</div></li> -->
+<script type="text/javascript">
+
+var mainData = {};
+
+	apiready = function () {
+		//获取统计数据
+		getData();
+		api.closeFrame({
+		    name: 'map-tip'
+		});
+
+		//监听下拉刷新
+		api.setRefreshHeaderInfo({
+			visible : true,
+			loadingImg : 'widget://image/arrow-down-o.png',
+			bgColor : '#39a4ff',
+			textColor : '#fff',
+			textDown : '下拉更多',
+			textUp : '松开刷新',
+			showTime : false
+		}, function(ret, err) {
+			getData();
+		});
+
+		api.addEventListener({
+        name: 'loderPage'
+    }, function (ret, err) {
+        getData();
+    });
+
+	}
+	function goDo(name){
+		api.sendEvent({
+				name: 'indexChange',
+				extra: {key: name}
+		});
+	}
+	//进入企业列表
+	function enterpriseList(){
+		api.openWin({
+				name: 'enterprise-list',
+				url: './enterprise-list.html',
+		});
+	}
+	//进入设备列表
+	function deviceList(status){
+		api.openWin({
+				name: 'device-list',
+				url: './device-list.html',
+				pageParam: {
+					status: status
+				}
+		});
+	}
+
+	function repair(){
+		api.openWin({
+				name: 'repair',
+				url: './repair.html',
+		});
+	}
+
+	function exceedLimit(){
+		api.openWin({
+				name: 'limit-info',
+				url: './limit-info.html',
+				pageParam: {
+		      data: mainData.monthRanking
+		    }
+		});
+	}
+
+	//周报
+	function weekReport(){
+		api.openWin({
+				name: 'week-report-list',
+				url: './week-report-list.html',
+		});
+	}
+	//月报
+	function monthReport(){
+		api.openWin({
+				name: 'month-report-list',
+				url: './month-report-list.html',
+		});
+	}
+
+
+	function realTimeData(){
+		api.openWin({
+				name: 'realtime-data',
+				url: './realtime-data.html',
+				pageParam: {
+					data: mainData.realMonitor
+				}
+		});
+	}
+	function weekBeyondTrend(){
+		api.openWin({
+				name: 'weekBeyond-trend',
+				url: './weekBeyond-trend.html',
+				pageParam: {
+					data: mainData.weekBeyondTrend
+				}
+		});
+	}
+
+	//获取统计数据
+	function getData(){
+		// 取消下拉刷新效果
+	  api.refreshHeaderLoadDone();
+		var userData = $api.getStorage('mine');
+		ajaxRequest('post', {
+				apiCode: 'BIG_SCREEN',
+				userId: userData.userId,
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					mainData = ret.result;
+					// var tpl = $('#tpl').html();
+					// var content = doT.template(tpl);
+					// $('#content').html(content(ret.result));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+		ajaxRequest('post', {
+				apiCode: 'APP_HOME',
+				userId: userData.userId,
+				requestData: {}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					mainData = ret.result;
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(ret.result));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+</script>
+</body>
+</html>

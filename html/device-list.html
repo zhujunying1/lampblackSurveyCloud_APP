@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>device-list</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.bui-list>[class*=bui-btn]:last-child{
+					border-bottom: 1px solid #eee;
+				}
+				.bui-box p{
+					color: #666;
+				}
+				.bui-box p span.bui-value{
+					color: #000;
+					font-weight: bold;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-box .hui{
+					color: #eee;
+					font-weight: bold;
+				}
+				.bui-label{
+					width: 1.2rem;
+				}
+				.bui-box p span.bui-value.red{
+					color: red;
+				}
+				.bui-box p span.bui-value.green{
+					color: green;
+				}
+				.span1{
+					position: relative;
+				}
+				.item-time{
+					position: absolute;
+					right: .2rem;
+					bottom: .12rem;
+				}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">设备列表</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<main>
+		<ul class="bui-list" id="content"></ul>
+	</main>
+
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+	{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+	{{ } }}
+	{{for(var p in it){ }}
+		<li class="bui-btn bui-box" tapmode onclick="onDetail('{{=it[p].deviceCode}}');">
+			<div class="span1">
+					<p class="item-text"></p>
+					<p class="item-text"><span class="bui-label">设备名称</span><span class="bui-value">{{=it[p].deviceName}}</span></p>
+					<p class="item-text"><span class="bui-label">设备编号</span><span class="bui-value">{{=it[p].deviceCode}}</span></p>
+					<p class="item-text"><span class="bui-label">企业名称</span><span class="bui-value">{{=it[p].enterpriseName}}</span></p>
+					{{ if(it[p].onlineStatus == 0){ }}
+						<p class="item-text"><span class="bui-label">在线状态</span><span class="bui-value red">离线</span></p>
+					{{ } }}
+					{{ if(it[p].onlineStatus == 1){ }}
+						<p class="item-text"><span class="bui-label">在线状态</span><span class="bui-value green">在线</span></p>
+					{{ } }}
+					<div class="item-time">{{=it[p].lastUploadTime || ''}}</div>
+			</div>
+			<i class="icon-listright"></i>
+		</li>
+		{{ } }}
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = [];
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		getData();
+
+	}
+
+	function getData(id){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: 'REAL_MONITOR',
+				userId: userData.userId,
+				requestData: {areaCode: "", pageSize: 999, pageNo: 1, onlineStatus: api.pageParam.status }
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					data = ret.result.list;
+					var tpl = $('#tpl').html();
+					var content = doT.template(tpl);
+					$('#content').html(content(data));
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	//详情
+	function onDetail(deviceCode){
+		var item = {};
+		for(var i=0;i<data.length;i++){
+			if(data[i].deviceCode == deviceCode){
+				item = data[i];
+			}
+		}
+		api.openWin({
+				name: 'device-detail',
+				url: './device-detail.html',
+				pageParam: item
+		});
+	}
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

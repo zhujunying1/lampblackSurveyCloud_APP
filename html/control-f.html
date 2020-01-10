@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>control</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/common.js"></script>
+		<style type="text/css">
+
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<script type="text/javascript">
+
+var data = [];
+var aMap = null, mainData =[];
+var deviceTotalList = [],onlineTotalList = [],offlineTotalList = [],beyondTotalList = [];
+
+apiready = function(){
+
+	aMap = api.require('aMap');
+	//获取统计数据
+	getData();
+
+	api.addEventListener({
+			name: 'refreshMap'
+	}, function (ret, err) {
+			getData();
+	});
+
+	api.addEventListener({
+			name: 'filterList'
+	}, function (ret, err) {
+			var tabIndex = ret.value.tabIndex;
+			var searchValue = ret.value.searchValue;
+			var list = [];
+			if(tabIndex == 0){//全部
+				list = mainData;
+			}else if(tabIndex == 1){//在线
+				list = onlineTotalList;
+			}else if(tabIndex == 2){//离线
+				list = offlineTotalList;
+			}else if(tabIndex == 3){//离线
+				list = beyondTotalList;
+			}
+			var result = [];
+			for(var i=0; i<list.length; i++){
+				if((list[i].enterpriseName || '').indexOf(searchValue) > -1){
+					result.push(list[i]);
+				}
+			}
+			renderMap(result);
+	});
+
+	//切换企业定位坐标
+	api.addEventListener({
+	    name: 'enterpriseSelect'
+	}, function(ret, err) {
+		var item = ret.value;
+		aMap.setCenter({
+		    coords: {
+		        lon: item.longitude,
+		        lat: item.latitude
+		    },
+		    animation: false
+		});
+		aMap.setZoomLevel({
+		    level: 10,
+		    animation: true
+		});
+	});
+};
+
+//获取统计数据
+function getData(){
+	var userData = $api.getStorage('mine');
+	ajaxRequest('post', {
+			apiCode: 'GIS_MONITOR_POINT',
+			userId: userData.userId,
+			requestData: {}
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				mainData = ret.result;
+				this.renderMap(ret.result);
+
+				deviceTotalList = [];
+				onlineTotalList = [];
+				offlineTotalList = [];
+				beyondTotalList = [];
+				searchValue = '';
+				deviceTotalList = mainData;
+				for(var i=0;i<mainData.length;i++){
+					if(mainData[i].onlineStatus === 1){//在线列表
+						onlineTotalList.push(mainData[i]);
+					}else if(mainData[i].onlineStatus === 0){//离线列表
+						offlineTotalList.push(mainData[i]);
+					}
+					if(mainData[i].deviceStatus === 2){//超标列表
+						beyondTotalList.push(mainData[i]);
+					}
+				}
+				api.sendEvent({
+						name: 'mapData',
+						extra: {
+							deviceTotalList : deviceTotalList,
+							onlineTotalList : onlineTotalList,
+							offlineTotalList : offlineTotalList,
+							beyondTotalList : beyondTotalList,
+						}
+				});
+
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+function renderMap(data){
+	aMap.close();
+	aMap.open({
+	    rect: {
+	        x: 0,
+	        y: 0,
+	        w: 'auto',
+	        h: 'auto'
+	    },
+	    showUserLocation: true,
+	    zoomLevel: 10,
+	    center: {
+	        lon: 118.796623,
+	        lat: 32.059352
+	    },
+	    fixedOn: api.frameName,
+	    fixed: true
+		}, function(ret, err) {
+		    if (ret.status) {
+					aMap.getLocation(function(ret, err) {
+							if (ret.status) {
+									// alert(JSON.stringify(ret));
+									//设置中心点
+									if(data.length){
+										aMap.setCenter({
+										    coords: {
+										        lon: data[0].longitude,
+										        lat: data[0].latitude
+										    },
+										    animation: false
+										});
+									}
+									api.openFrame({
+											 name: 'map-tip',
+											 url: './map-tip.html',
+											 bounces: false,
+											 rect: {
+												 x: 10,
+												 y: api.winHeight - 120,
+												 w: 90,
+						 						 h: 130
+											 }
+									 });
+							} else {
+									alert(JSON.stringify(err));
+							}
+					});
+		    } else {
+		        alert(JSON.stringify(err));
+		    }
+		});
+		//在地图上显示用户位置
+		aMap.showUserLocation({
+		    isShow: true
+		});
+		var mapList = [];
+		for(var i=0;i<data.length;i++){
+				mapList[i] = data[i];
+				mapList[i].id = data[i].enterpriseId;
+				mapList[i].lon = data[i].longitude;
+				mapList[i].lat = data[i].latitude;
+				if(data[i].deviceStatus == 1){//正常
+					mapList[i].icons = ['widget://image/site1.png'];
+				}else if(data[i].deviceStatus == 2){//超标
+					mapList[i].icons = ['widget://image/site4.png'];
+				}else if(data[i].deviceStatus == 3){//离线
+					mapList[i].icons = ['widget://image/site2.png'];
+				}
+		}
+		// var data = [{
+		// 		id: 1,
+		// 		lon: 118.791984,
+		// 		lat: 32.057216,
+		// 		icons: ['widget://image/site1.png'],
+		// 		"enterpriseName": "海底捞",
+		// 		"address": "南京市浦口区大桥南路",
+		// 		"longitude": 100.2,
+		// 		"latitude": 130.5,
+		// 		"uploadTime": "2019-10-19 12:31:00",
+		// 		"deviceCode": "#001",
+		// 		"lampblack": 20.1,
+		// 		"beyondMultiple": 1.1,
+		// 		"deviceStatus": 1,
+		// 		"fanStatus": "1",
+		// 		"purifierEffect": 0.5
+		// }];
+		aMap.addAnnotations({
+	    annotations: mapList,
+	    icons: ['widget://'],
+	    draggable: true,
+	    timeInterval: 2.0
+	}, function(ret) {
+		var item = {};
+		for(var i=0; i<data.length;i++){
+			if(data[i].enterpriseId == ret.id){
+				item = data[i]
+			}
+		}
+    aMap.setWebBubble({
+        id : ret.id,
+        size : {
+          width : 240,
+          height : 200
+        },
+        data:'<div class="station-frame" style="padding:10px;border-radius:8px;color:#303033;font-size:14px;line-height:18px;background:#fff;opacity: .8;">'+
+                      '<div style="font-weight:bold;font-size:16px;color:#119061;padding-top:5px">'+item.enterpriseName+'</div>'+
+											'<div style="padding-top:5px">设备编号：'+item.deviceCode+'</div>'+
+											'<div style="padding-top:5px">地址：'+item.address+'</div>'+
+											'<div style="padding-top:5px">净化效能：'+setPurifierEffect(item.purifierEffectLevel)+'</div>'+
+                      '<div style="padding-top:5px">风机状态：'+(item.fanStatus == 0 ? '开启' : '关闭')+'</div>'+
+											'<div style="padding-top:5px">油烟浓度：'+item.lampblack+'mg/m³</div>'+
+											'<div style="padding-top:5px">上传时间：'+timestampToTime(item.uploadTime)+'</div>'+
+              '</div>'
+    });
+		if (ret.eventType == "click") {
+        aMap.popupBubble({
+            id : ret.id
+        });
+    }
+		aMap.addWebBubbleListener(function(ret){
+			// api.openWin({
+			// 	    name: 'control-info',
+			// 	    url: './control-info.html',
+			// 	    pageParam: {
+			// 	        id: ret.id
+			// 	    }
+			// 	});
+				aMap.closeBubble({
+				    id: ret.id
+				});
+	  });
+	    // if (ret.eventType == 'click') {
+			// 	var item = {};
+			// 	for(var i=0; i<data.length;i++){
+			// 		if(data[i].enterpriseId == ret.id){
+			// 			item = data[i]
+			// 		}
+			// 	}
+			// 	aMap.setBubble({
+			//     id: ret.id,
+			//     bgImg: 'widget://res/bubble_bg.png',
+			//     content: {
+			//         title: item.enterpriseName,
+			//         subTitle: item.address,
+			//         illus: 'http://ico.ooopic.com/ajax/iconpng/?id=145044.png'
+			//     },
+			//     styles: {
+			//         titleColor: '#000',
+			//         titleSize: 16,
+			//         subTitleColor: '#999',
+			//         subTitleSize: 12,
+			//         illusAlign: 'left'
+			//     }
+			// 	}, function(ret) {
+			// 	    if (ret) {
+			// 					api.openWin({
+			// 					    name: 'control-info',
+			// 					    url: './control-info.html',
+			// 					    pageParam: {
+			// 					        id: item.id
+			// 					    }
+			// 					});
+			// 	    }
+			// 	});
+	    // }
+	});
+
+}
+
+function setPurifierEffect(status){
+	if(!status){
+		return '暂无';
+	}else if(status == 1){
+		return '低';
+	}else if(status == 2){
+		return '中';
+	}else if(status == 3){
+		return '高';
+	}
+}
+</script>
+</body>
+</html>

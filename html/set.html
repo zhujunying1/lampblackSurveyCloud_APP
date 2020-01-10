@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>set</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style>
+			.user-input input{
+				color: #000;
+				font-weight: bold;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page register-page">
+	<header class="bui-bar" id="header">
+			<div class="bui-bar">
+					<div class="bui-bar-left">
+							<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+					</div>
+					<div class="bui-bar-main">个人信息修改</div>
+					<div class="bui-bar-right">
+					</div>
+			</div>
+	</header>
+	<main>
+			<ul class="bui-list" id="content"></ul>
+			<div class="container-xy">
+				<div class="bui-btn round primary" id="save">保存</div>
+			</div>
+	</main>
+	<script id="tpl" type="text/x-dot-template">
+		<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="loginName">用户名:</label>
+				<div class="span1">
+						<div class="bui-input user-input">
+								<input id="loginName" type="text" name="loginName" value="{{=it.loginName}}" placeholder="请输入用户名">
+						</div>
+				</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="cname">真实姓名:</label>
+				<div class="span1">
+						<div class="bui-input user-input">
+								<input id="cname" type="text" name="cname" value="{{=it.cname}}" placeholder="请输入用户名">
+						</div>
+				</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="password">密码:</label>
+				<div class="span1">
+						<div id="passwordInput" class="bui-input user-input">
+								<input id="password" type="text" name="password" value="{{=it.password}}" placeholder="请输入密码">
+						</div>
+				</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="phonenumber">手机号:</label>
+				<div class="span1">
+						<div class="bui-input user-input">
+								<input id="phonenumber" type="text" name="mobile" value="{{=it.mobile}}" placeholder="请输入手机号">
+						</div>
+				</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="email">邮箱:</label>
+				<div class="span1">
+						<div class="bui-input user-input">
+								<input id="email" type="text" name="email" value="{{=it.email}}" placeholder="请输入邮箱">
+						</div>
+				</div>
+		</li>
+	</script>
+	</div>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		var param = api.pageParam.data;
+
+		var tpl = $('#tpl').html();
+		var content = doT.template(tpl);
+		$('#content').html(content(param));
+
+	}
+
+
+	$('#save').on("click", function(argument) {
+		var params = {},len = [];
+		var input = $("input");
+		 for (i=0; i<input.length; i++) {
+			 var val = $(input[i]).val();
+			 var name = $(input[i]).attr('name');
+			 params[name] = val;
+			 len.push(val);
+		 }
+			if(!params.loginName){
+				api.toast({
+						msg: '用户名不能为空！',
+						location: 'middle'
+				});
+				return false;
+			}
+			if(!params.cname){
+				api.toast({
+						msg: '真实姓名不能为空！',
+						location: 'middle'
+				});
+				return false;
+			}
+			if(!params.password){
+				api.toast({
+						msg: '密码不能为空！',
+						location: 'middle'
+				});
+				return false;
+			}
+			if(params.password.length < 6 || params.password.length > 16){
+				api.toast({
+						msg: '请输入6-16位的密码！',
+						location: 'middle'
+				});
+				return false;
+			}
+			var userData = $api.getStorage('mine');
+
+			params.source = 'APP';
+
+			params.id = userData.userId;
+			ajaxRequest('post', {
+					apiCode: 'USER_01',
+					userId: userData.userId,
+					requestData: params
+			}, function (ret, err) {
+					api.hideProgress();
+					if (ret.code == 200) {
+						bui.confirm({
+			          "title": "",
+			          "height": 460,
+			          "content": '<div class="bui-box-center"><div><i class="icon-successfill success"></i><h3>修改成功</h3><p>请使用新用户信息重新登陆！</p></div></div>',
+			          "buttons": [{ name: "我知道了", className: "primary-reverse" }],
+								callback:function(e){
+			               var text = $(e.target).text();
+			               if( text == "我知道了"){
+											 $api.clearStorage();
+											 api.removeLaunchView({
+													 animation: {
+															 type: 'fade',
+															 duration: 500
+													 }
+											 });
+											 api.openWin({
+													 name: 'login',
+													 url: './login.html',
+													 opaque: true,
+													 vScrollBarEnabled:false
+											 });
+			               }
+			               this.close();
+			           }
+			      });
+					} else {
+						api.toast({
+								msg: ret.message,
+								location: 'middle'
+						});
+						return false;
+					}
+			});
+
+  })
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

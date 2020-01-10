@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>list</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.list-main{
+				background: #eee;
+			}
+			.list-main-li{
+				border-radius: .2rem;
+				margin: .2rem .2rem 0 .2rem;
+			}
+			.bui-list{
+				padding-bottom: 1rem;
+			}
+			[class*=bui-btn] label{
+				display: inline-block;
+				text-align: justify;
+        text-align-last: justify;
+				vertical-align: middle;
+			}
+			.list-main-li p{
+				overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        /*! autoprefixer: off */
+        -webkit-box-orient: vertical;
+			}
+			.list-main-li p i.icon{
+				font-size: .34rem;
+				color: #F29702;
+			}
+			.list-main-li.done p i.icon{
+				color: #39a4ff;
+			}
+			.list-main-li .line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+				margin: .2rem 0;
+			}
+			.repair-btn{
+				text-align: center;
+		    color: #F16F0A;
+		    padding-top: .1rem;
+			}
+			.repair-btn.done{
+				color: #39a4ff;
+			}
+			.bui-btn.bui-box .span1{
+				position: relative;
+			}
+			.wait-tip{
+				position: absolute;
+				top: .05rem;
+				right: .1rem;
+				color: #fff;
+				background: #F29702;
+				padding: .06rem .14rem;
+				border-radius: 10px;
+				font-size: .24rem;
+			}
+			.wait-tip.done{
+				background: #39a4ff;
+			}
+			.bui-tab-main ul li{
+				overflow-y: scroll;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page page-form">
+		<main class="list-main">
+			<div id="tabHead" class="bui-tab">
+				<div class="bui-tab-main">
+					<ul>
+	          <li id="needToDoList"></li>
+	          <li style="display: none;" id="alreadyDoneList"></li>
+					</ul>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script id="tpl-needToDo" type="text/x-dot-template">
+		<ul class="bui-list">
+			{{ if(it.length < 1){ }}
+					<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+			{{ } }}
+			{{for(var p in it){ }}
+			<li class="bui-btn bui-box list-main-li">
+				<div class="span1">
+					<p><i class="icon">&#xe62a;</i><label class="bui-label" for="phonenumber">工单号:</label>{{=it[p].orderNo}}</p>
+					<p><i class="icon">&#xe658;</i><label class="bui-label" for="phonenumber">工单时间:</label>{{=timestampToTime(it[p].createTime)}}</p>
+					<p><i class="icon">&#xe65b;</i><label class="bui-label" for="phonenumber">责任单位:</label>{{=it[p].dutyEnterprise}}</p>
+					<p><i class="icon">&#xe635;</i><label class="bui-label" for="phonenumber">责任人:</label>{{=it[p].dutyPerson}}</p>
+					<p><i class="icon">&#xe62d;</i><label class="bui-label" for="phonenumber">督办原因:</label>{{=it[p].reason}}</p>
+					<div class="line"></div>
+					<div class="repair-btn" tapmode onclick="todo('{{=it[p].id}}');">去处理</div>
+					<div class="wait-tip">待办</div>
+				</div>
+			</li>
+			{{ } }}
+		</ul>
+	</script>
+	<script id="tpl-alreadyDone" type="text/x-dot-template">
+		<ul class="bui-list">
+			{{ if(it.length < 1){ }}
+					<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+			{{ } }}
+			{{for(var p in it){ }}
+			<li class="bui-btn bui-box list-main-li done">
+				<div class="span1">
+				<p><i class="icon">&#xe62a;</i><label class="bui-label" for="phonenumber">工单号:</label>{{=it[p].orderNo}}</p>
+				<p><i class="icon">&#xe658;</i><label class="bui-label" for="phonenumber">工单时间:</label>{{=timestampToTime(it[p].createTime)}}</p>
+				<p><i class="icon">&#xe65b;</i><label class="bui-label" for="phonenumber">责任单位:</label>{{=it[p].dutyEnterprise}}</p>
+				<p><i class="icon">&#xe635;</i><label class="bui-label" for="phonenumber">责任人:</label>{{=it[p].dutyPerson}}</p>
+				<p><i class="icon">&#xe62d;</i><label class="bui-label" for="phonenumber">督办原因:</label>{{=it[p].reason}}</p>
+				<div class="repair-btn done" tapmode onclick="toSee('{{=it[p].id}}');">查看详情</div>
+				<div class="wait-tip done">已办</div>
+				</div>
+			</li>
+			{{ } }}
+		</ul>
+	</script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+
+	var SUPERVISE_REASON = [];
+	apiready = function(){
+			//查询督办原因字典
+			getDicType();
+			//获取待办工单列表
+			getData(1);
+			//获取已办工单列表
+			getData(2);
+
+			var uiSlide = bui.slide({
+						 id:"#tabHeadNav",
+						 autopage:true
+					 })
+
+			api.addEventListener({
+					name: 'tabChange'
+			}, function (ret, err) {
+	      if(ret.value){
+					uiSlide.to(ret.value.index)
+	      }
+	    });
+
+			//监听下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				loadingImg : 'widget://image/arrow-down-o.png',
+				bgColor : '#39a4ff',
+				textColor : '#fff',
+				textDown : '下拉更多',
+				textUp : '松开刷新',
+				showTime : false
+			}, function(ret, err) {
+				getData();
+			});
+
+			api.addEventListener({
+					name: 'solveChange'
+			}, function () {
+					getData(1);
+					getData(2);
+			});
+	};
+
+	//获取已办工单列表
+	//status 状态 1:待办 2:已办
+	function getData(status){
+		var userData = $api.getStorage('mine');
+		api.showProgress({
+				title:'加载中',
+				modal:false
+		});
+		ajaxRequest('post', {
+				apiCode: 'WORK_ORDER_QUERY',
+				userId: userData.userId,
+				requestData: {
+					pageNo: 1,
+					pageSize: 999,
+					status: status
+				}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					if(status == 1){
+						var tpl = $('#tpl-needToDo').html();
+	          var content = doT.template(tpl);
+						$('#needToDoList').html(content(ret.result.list));
+					}else{
+						var tpl2 = $('#tpl-alreadyDone').html();
+	          var content2 = doT.template(tpl2);
+						$('#alreadyDoneList').html(content2(ret.result.list));
+					}
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+	//去处理
+	function todo(id){
+		api.openWin({
+		    name: 'solve-list',
+		    url: './solve-list.html',
+		    pageParam: {
+		        id: id
+		    }
+		});
+	}
+	//去查看
+	function toSee(id){
+		api.openWin({
+		    name: 'solve-detail',
+		    url: './solve-detail.html',
+		    pageParam: {
+		        id: id
+		    }
+		});
+	}
+
+	function setDicType(type){
+		for(var i=0;i<SUPERVISE_REASON.length;i++){
+			if(SUPERVISE_REASON[i].code == type){
+				return SUPERVISE_REASON[i].name;
+			}
+		}
+	}
+
+	function getDicType() {
+		var userData = $api.getStorage('mine');
+
+		ajaxRequest('post', {
+				apiCode: 'DIC_QUERY',
+				userId: userData.userId,
+				requestData: {
+					pageNo: 1,
+					pageSize: 999,
+					parentCode: 'SUPERVISE_REASON'
+				}
+		}, function (ret, err) {
+				api.hideProgress();
+				if (ret.code == 200) {
+					SUPERVISE_REASON = ret.result.list;
+				} else {
+					api.toast({
+							msg: ret.message,
+							location: 'middle'
+					});
+					return false;
+				}
+		});
+	}
+
+</script>
+</body>
+</html>

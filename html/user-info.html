@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>user-info</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+		    .personal-info{
+		        margin-top: 0;
+		        margin-bottom: .2rem;
+		    }
+		    .personal-info .bui-btn {
+		        padding-top: .3rem;
+		        padding-bottom: .3rem;
+		    }
+		    .personal-info .icon {
+		        margin-right: 0;
+		    }
+		    .contact-list{
+		        border-top: none;
+		        margin-bottom: .2rem;
+		        padding: 0 0.2rem;
+		        background-color: #ffffff;
+		    }
+		    .contact-list .bui-btn{
+		        padding-left: 0;
+		        padding-top: .3rem;
+		        padding-bottom: .3rem;
+		    }
+		    .contact-list li:last-child{
+		        border-bottom: none;
+		    }
+				.bui-btn.bui-box i.icon{
+					font-size: .44rem;
+					color: #259AF3;
+				}
+				.span1 .bui-value{
+					text-align: right;
+				}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">个人信息</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+		<div class="container-xy"  id="content">
+		</div>
+		<div class="container-xy">
+			<div class="bui-btn round primary" tapmode onclick="set()">修改信息</div>
+		</div>
+		<div class="container-xy">
+			<div class="bui-btn round danger" id="loginOut">退出登陆</div>
+		</div>
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+		<ul class="bui-list contact-list">
+				<li class="bui-btn bui-box clearactive">
+						<i class="icon">&#xe60f;</i><label class="bui-label">用户名</label>
+						<div class="span1">
+								<div class="bui-value">{{=it.loginName}}</div>
+						</div>
+				</li>
+				<li class="bui-btn bui-box clearactive">
+						<i class="icon">&#xe661;</i><label class="bui-label">真实姓名</label>
+						<div class="span1">
+								<div class="bui-value">{{=it.cname}}</div>
+						</div>
+				</li>
+				<li class="bui-btn bui-box clearactive">
+						<i class="icon">&#xe603;</i><label class="bui-label">工作电话</label>
+						<div class="span1">
+								<div class="bui-value">{{=it.mobile}}</div>
+						</div>
+				</li>
+				<li class="bui-btn bui-box clearactive">
+						<i class="icon">&#xe633;</i><label class="bui-label">邮箱</label>
+						<div class="span1">
+								<div class="bui-value">{{=it.email}}</div>
+						</div>
+				</li>
+		</ul>
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = {};
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		var userData = $api.getStorage('mine');
+		data = {
+			loginName: userData.loginName || '',
+			cname: userData.cname || '',
+			mobile: userData.mobile || '',
+			email: userData.email || '',
+			password: userData.password || '',
+		}
+
+		var tpl = $('#tpl').html();
+		var content = doT.template(tpl);
+		$('#content').html(content(data));
+
+	}
+		//退出登陆
+		$('#loginOut').on("click", function() {
+				bui.confirm("您确定要退出登陆吗？", function(e) {
+						//this 是指点击的按钮
+						var text = $(e.target).text();
+						var userData = $api.getStorage('mine');
+						if (text == "确定") {
+							ajaxRequest('post', {
+									apiCode: 'LOGOUT',
+									userId: userData.userId,
+									requestData: {
+										loginName: userData.loginName,
+										userId: userData.userId
+									}
+							}, function (ret, err) {
+									api.hideProgress();
+									if (ret.code == 200) {
+										$api.clearStorage();
+										api.removeLaunchView({
+								        animation: {
+								            type: 'fade',
+								            duration: 500
+								        }
+								    });
+										api.openWin({
+								        name: 'login',
+								        url: './login.html',
+								        opaque: true,
+								        vScrollBarEnabled:false
+								    });
+									} else {
+										api.toast({
+												msg: ret.message,
+												location: 'middle'
+										});
+										return false;
+									}
+							});
+						}
+						this.close()
+				});
+		})
+
+		//修改信息
+		function set(){
+			api.openWin({
+			    name: 'set',
+			    url: './set.html',
+			    pageParam: {
+			        data: data
+			    }
+			});
+		}
+		//返回
+		function my_close() {
+				api.closeWin();
+		}
+
+	</script>
+</body>
+</html>

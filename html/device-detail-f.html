@@ -1,0 +1,421 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>device-detail-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css" />
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/rolldate.min.js"></script>
+		<style type="text/css">
+			.solve-list{
+				width:100%;
+				height:100%;
+			}
+			.solve-list h3{
+				font-weight: bold;
+				font-size: .36rem;
+			}
+			.bui-list label{
+				text-align-last: justify;
+		    -moz-text-align-last: justify ;  //兼容firefox
+		    text-align: justify;
+		    text-justify: distribute-all-lines;  //兼容ie
+		    display: block; //ie下需设为block
+				width: 1.8rem;
+			}
+			.line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+			}
+			.bui-list>[class*=bui-btn]{
+				border-bottom: none;
+			}
+			input.bui-tag, input.bui-check{
+				width: 1.8rem;
+				border-radius: .3rem;
+			}
+			.img-list{
+				padding-bottom: .2rem;
+			}
+			.img-list img{
+				width: 100%;
+				height: 100%;
+			}
+			.bui-nav.bui-fluid>[class*=bui-btn].bui-box-vertical{
+				padding: .2rem;
+				height: 2.6rem;
+			}
+			.span4{
+			  color: #000;
+			}
+			.bui-list li .span1 span.red{
+				color: red;
+			}
+			.bui-list li .span1 span.green{
+				color: green;
+			}
+			.icon-tishi{ color: orange}
+			.bui-page>.main, .bui-page>main, .bui-page .list-main{
+				padding-bottom: .5rem;
+			}
+			.solve-list{
+				overflow: auto;
+			}
+			.bui-page{
+				overflow: auto;
+				height: auto;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div class="bui-page page-form" id="content"></div>
+<script id="tpl" type="text/x-dot-template">
+	<main class="solve-list">
+		<h3 class="section-title">详情</h3>
+		<ul class="bui-list">
+			{{ if(it.enterpriseName){ }}
+				<li class="bui-btn bui-box clearactive">
+					<label class="bui-label">企业名称</label>：
+					<div class="span1">
+						{{=it.enterpriseName}}
+					</div>
+				</li>
+			{{ } }}
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">设备名称</label>：
+				<div class="span1">
+					{{=it.deviceName}}
+				</div>
+			</li>
+
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">设备编号</label>：
+				<div class="span1">
+					{{=it.deviceCode}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">在线状态</label>：
+				<div class="span1">
+					{{ if(it.onlineStatus == 0){ }}
+						<span class="red">离线</span>
+					{{ } }}
+					{{ if(it.onlineStatus == 1){ }}
+						<span class="green">在线</span>
+					{{ } }}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">油烟浓度</label>：
+				<div class="span1">
+						{{=(it.lampblack || 0)}}mg/m³
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">净化效能</label>：
+				<div class="span1">
+						{{=it.purifierEffect == 1 ? '高' : '低'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">风机状态</label>：
+				<div class="span1">
+						{{=it.fanStatus ? '开' : '关'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">风机电流</label>：
+				<div class="span1">
+					{{=it.fanElec || '0'}}A
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">净化器状态</label>：
+				<div class="span1">
+						{{=it.purifierStatus ? '开' : '关'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">净化器电流</label>：
+				<div class="span4">
+					{{=it.purifierElec || '0'}}A
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">上报时间</label>：
+				<div class="span1">
+					{{=it.uploadTime || ''}}
+				</div>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<div class="line"></div>
+		<div class="line"></div>
+		<ul class="bui-list nav-list">
+			<li class="bui-btn bui-box" tapmode onclick="openHistory('{{=it.deviceCode}}')">
+					<div class="icon"><i class="icon icon-tishi">&#xe622;</i></div>
+					<div class="span1">超标历史</div>
+					<i class="icon-listright"></i>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<div class="line"></div>
+		<div class="line"></div>
+		<h3 class="section-title">设备历史数据查询</h3>
+		<ul class="bui-list bui-select-form">
+				<li class="bui-btn bui-box">
+						<label>开始时间</label>
+						<div class="span1"><input type="text" id="datepicker_input" readonly class="bui-input" style="text-align:right;"></div>
+						<i class="icon-listright"></i>
+				</li>
+		</ul>
+		<ul class="bui-list bui-select-form">
+				<li class="bui-btn bui-box">
+						<label>结束时间</label>
+						<div class="span1"><input type="text" id="datepicker_input_end" readonly class="bui-input" style="text-align:right;"></div>
+						<i class="icon-listright"></i>
+				</li>
+		</ul>
+		<div class="container-xy">
+			<div class="bui-btn round primary" tapmode onclick="search()">查询</div>
+		</div>
+		<h3 class="section-title">历史数据趋势图</h3>
+		<ul class="bui-list">
+			<li class="bui-btn bui-box clearactive">
+				<div id="echarts_line" style="width: 100%;height:6rem;"></div>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<h3 class="section-title">历史数据一览表</h3>
+		<table class="bui-table bui-table-odd">
+			<tbody>
+				<tr>
+					<th style="width:25%">上报时间</th>
+					<th style="width:25%">油烟浓度</th>
+				</tr>
+				{{ var list = it.list; }}
+				{{for(var p in list){ }}
+					<tr>
+						<th style="width:25%">{{=list[p].uploadTime}}</th>
+						<th style="width:25%">{{=list[p].lampblack}}</th>
+					</tr>
+				{{ } }}
+			</tbody>
+		</table>
+		{{ if(it.list.length < 1){ }}
+				<div class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></div>
+		{{ } }}
+	</main>
+</script>
+<script type="text/javascript" src="../script/echarts.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+var CUISINE = [];
+var pageNo = 1;
+var mainData = {list:[]};
+apiready = function(){
+
+	getData();
+
+	api.addEventListener({
+			 name:'scrolltobottom',
+			 extra:{
+					 threshold:10
+			 }
+	 }, function(ret, err){
+					 //页码+1，继续请求数据
+					 pageNo+=1;
+					 getData();
+	 });
+	//  //监听下拉刷新
+	//  api.setRefreshHeaderInfo({
+	// 		 visible : true,
+	// 		 loadingImg : 'widget://image/arrow-down-o.png',
+	// 		 bgColor : '#39a4ff',
+	// 		 textColor : '#fff',
+	// 		 textDown : '下拉更多',
+	// 		 textUp : '松开刷新',
+	// 		 showTime : false
+	// 	 }, function(ret, err) {
+	// 		 //重置页码、页面数据，请求数据
+	// 		 pageNo = 1;
+	// 		 mainData = {list:[]};
+	// 		 getData();
+	//  });
+}
+
+var timeArr = timestampToTime(new Date().getTime()).split('-');
+var startTimeYear = timeArr[0];
+var startTimeMonth = timeArr[1];
+var startTimeDay = timeArr[2];
+
+var beginTime = startTimeYear+'-'+startTimeMonth+'-'+startTimeDay+' 00:00:00';
+var endTime = startTimeYear+'-'+startTimeMonth+'-'+startTimeDay+' 23:59:59';
+
+function getData(){
+	// 取消下拉刷新效果
+  // api.refreshHeaderLoadDone();
+	var deviceCode = api.pageParam.deviceCode;
+	var userData = $api.getStorage('mine');
+	api.showProgress({
+			title : '加载中',
+			modal : true
+	});
+
+	ajaxRequest('post', {
+			apiCode: "HISTORY",
+			userId: userData.userId,
+			requestData: {
+				pageNo: pageNo,
+				pageSize: 10,
+				deviceCode: deviceCode,
+				beginTime: beginTime,
+				endTime: endTime,
+			}
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				var data = api.pageParam;
+				data.list = mainData.list;
+				if(ret.result.pageNum != 0 && (pageNo > ret.result.pageNum)){
+					pageNo = ret.result.pageNum;
+					api.toast({
+							msg: '没有更多数据了！',
+							location: 'middle'
+					});
+					return;
+				}
+				mainData = data;
+				mainData.list = mainData.list.concat(ret.result.list || []);
+				var tpl = $('#tpl').html();
+				var content = doT.template(tpl);
+				$('#content').html(content(mainData));
+
+				new Rolldate({
+					el: '#datepicker_input',
+					format: 'YYYY-MM-DD hh:mm:ss',
+					beginYear: 2000,
+					endYear: 2100,
+					value: beginTime,
+					confirm: function(date) {
+						beginTime = date;
+					},
+				})
+				new Rolldate({
+					el: '#datepicker_input_end',
+					format: 'YYYY-MM-DD hh:mm:ss',
+					beginYear: 2000,
+					endYear: 2100,
+					value: endTime,
+					confirm: function(date) {
+						endTime = date;
+					},
+				})
+
+				renderChart(mainData.list || []);
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+function search(){
+	pageNo = 1;
+	mainData = {list:[]};
+	getData();
+}
+
+var option = {
+				tooltip : {
+					trigger: 'axis',
+					axisPointer: {
+							type: 'cross',
+							label: {
+									backgroundColor: '#6a7985'
+							}
+					}
+			},
+      legend: {
+              data:['油烟浓度','风机电流','净化器电流']
+      },
+      calculable : true,
+      xAxis : [
+              {
+                  type : 'category',
+                  boundaryGap : false,
+                  data : []
+              }
+      ],
+      yAxis : [
+              {
+                  type : 'value'
+              }
+      ],
+      series : [
+          {
+                  name:'油烟浓度',
+                  type:'line',
+                  stack: '总量',
+                  itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                  data:[]
+          },
+          {
+                  name:'风机电流',
+                  type:'line',
+                  stack: '总量',
+                  itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                  data:[]
+          },
+          {
+                  name:'净化器电流',
+                  type:'line',
+                  stack: '总量',
+                  itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                  data:[]
+          },
+      ]
+};
+
+	function renderChart(data){
+		var labels = [];//横坐标数据
+		var datas1 = [],datas2 = [],datas3 = [];//纵坐标数据
+		for(var i=0;i<data.length;i++){
+			labels.push(data[i].uploadTime);
+			datas1.push(data[i].lampblack || 0);
+			datas2.push(data[i].fanElec || 0);
+			datas3.push(data[i].purifierElec || 0);
+		}
+		option.xAxis[0].data = labels;
+		option.series[0].data = datas1;
+		option.series[1].data = datas2;
+		option.series[2].data = datas3;
+
+		var ChartLine = echarts.init(document.getElementById('echarts_line'));
+		ChartLine.setOption(option);
+
+	}
+
+function openHistory(deviceCode){
+	api.openWin({
+			name: 'device-history',
+			url: './device-history.html',
+			pageParam: {
+					deviceCode: deviceCode
+			}
+	});
+}
+
+
+</script>
+</body>
+</html>

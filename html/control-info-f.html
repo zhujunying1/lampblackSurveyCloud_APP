@@ -1,0 +1,381 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>control-info-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.solve-list{
+				width:100%;
+				height:100%;
+			}
+			.solve-list h3{
+				font-weight: bold;
+				font-size: .36rem;
+			}
+			.bui-list label{
+				text-align-last: justify;
+		    -moz-text-align-last: justify ;  //兼容firefox
+		    text-align: justify;
+		    text-justify: distribute-all-lines;  //兼容ie
+		    display: block; //ie下需设为block
+				width: 1.8rem;
+			}
+			.line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+			}
+			.bui-list>[class*=bui-btn]{
+				border-bottom: none;
+			}
+
+			.img-list{
+				padding-bottom: .2rem;
+			}
+			.img-list img{
+				width: 100%;
+				height: 100%;
+			}
+			.bui-nav.bui-fluid>[class*=bui-btn].bui-box-vertical{
+				padding: .2rem;
+				height: 2.6rem;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div class="bui-page page-form">
+  <main class="solve-list" id="content"></main>
+	<script id="tpl" type="text/x-dot-template">
+	<h3 class="section-title">企业信息</h3>
+	<ul class="bui-list">
+		<li class="bui-btn bui-box clearactive">
+			<label class="bui-label" for="phonenumber">企业名称</label>：
+			<div class="span1">
+					{{=it.enterpriseInfo.enterpriseName}}
+			</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+			<label class="bui-label" for="phonenumber">企业状态</label>：
+			<div class="span1">
+					{{=setDicType(ENTERPRISE_STATUS,it.enterpriseInfo.enterpriseStatus) || ''}}
+			</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+			<label class="bui-label" for="password">责任人</label>：
+			<div class="span1">
+					{{=it.enterpriseInfo.owner}}
+			</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+			<label class="bui-label">联系电话</label>：
+			<div class="span1">
+				{{=it.enterpriseInfo.ownerMobile}}
+			</div>
+		</li>
+		<li class="bui-btn bui-box clearactive">
+			<label class="bui-label">企业地址</label>：
+			<div class="span1">
+				{{=it.enterpriseInfo.address}}
+			</div>
+		</li>
+	</ul>
+		{{ if(it.deviceInfo){ }}
+		<div class="line"></div>
+		<h3 class="section-title">设备信息</h3>
+		<div class="section-title nobefore">设备</div>
+      <div class="bui-fluid-space-2">
+					{{ var deviceInfo = it.deviceInfo; }}
+					{{for(var p in deviceInfo){ }}
+						<div class="span1" style="padding-bottom:.1rem;">
+								<input type="radio" class="bui-check" name="deviceInfo" value="{{=p}}" uncheck="{{=deviceInfo[p].deviceCode}}" check="{{=deviceInfo[p].deviceCode}}">
+						</div>
+					{{ } }}
+      </div>
+				{{ var deviceInfo = it.deviceInfo; }}
+				{{for(var p in deviceInfo){ }}
+				<div class="tabBox" style="display:none;">
+					<ul class="bui-list">
+<!--						<li class="bui-btn bui-box clearactive">-->
+<!--							<label class="bui-label" for="phonenumber">净化器型号</label>：-->
+<!--							<div class="span1">-->
+<!--								{{=setDicType(PURIFIER_MODEL,deviceInfo[p].purifierMode) || ''}}-->
+<!--							</div>-->
+<!--						</li>-->
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label" for="phonenumber">编号</label>：
+							<div class="span1">
+									{{=deviceInfo[p].deviceCode}}
+							</div>
+						</li>
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label" for="password">净化器开关 </label>：
+							<div class="span1">
+									{{=deviceInfo[p].purifierStatus == 1 ? '开启' : '关闭'}}
+							</div>
+						</li>
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label">净化器电流</label>：
+							<div class="span1">
+								{{=deviceInfo[p].purifierElec || ''}}
+							</div>
+						</li>
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label">烟雾浓度</label>：
+							<div class="span1">
+								{{=deviceInfo[p].lampblack || ''}}
+							</div>
+						</li>
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label" for="password">风机开关</label>：
+							<div class="span1">
+									{{=deviceInfo[p].fanStatus == 1 ? '开启' : '关闭'}}
+							</div>
+						</li>
+						<li class="bui-btn bui-box clearactive">
+							<label class="bui-label">风机电流</label>：
+							<div class="span1">
+								{{=deviceInfo[p].fanElec || ''}}
+							</div>
+						</li>
+						<div class="line"></div>
+						<h3 class="section-title">今日概况</h3>
+						<li class="bui-btn bui-box clearactive">
+							<div class="span1">今日检测超标{{=deviceInfo[p].todaySurvey.beyondTimes}}次</div>
+						</li>
+						{{ var beyondRecords = deviceInfo[p].todaySurvey.beyondRecord; }}
+						{{for(var p in beyondRecords){ }}
+							<li class="bui-btn bui-box clearactive">
+								<div class="span1">{{=timestampToTime(beyondRecords[p].time)}}</div>
+								<div class="span1">
+									烟雾指数:<span class="word-red">{{=beyondRecords[p].value}}</span>mg/m³
+								</div>
+							</li>
+						{{ } }}
+					</ul>
+					<div class="line"></div>
+					<h3 class="section-title">烟雾浓度指数趋势图</h3>
+					<ul class="bui-list">
+						<li class="bui-btn bui-box clearactive">
+							<canvas  class="span1" id="{{=('lampblackTrend'+p)}}"></canvas>
+						</li>
+					</ul>
+					<div class="line"></div>
+					<h3 class="section-title">净化器电流趋势图</h3>
+					<ul class="bui-list">
+						<li class="bui-btn bui-box clearactive">
+							<canvas  class="span1" id="{{=('purifierEleTrend'+p)}}"></canvas>
+						</li>
+					</ul>
+					<div class="line"></div>
+					<h3 class="section-title">风机电流趋势图</h3>
+					<ul class="bui-list">
+						<li class="bui-btn bui-box clearactive">
+							<canvas  class="span1" id="{{=('fanEleTrend'+p)}}"></canvas>
+						</li>
+					</ul>
+				</div>
+				{{ } }}
+			{{ } }}
+
+	</script>
+</div>
+<script type="text/javascript" src="../script/Chart.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+var data = [], ENTERPRISE_STATUS = [], PURIFIER_MODEL = [];
+apiready = function(){
+
+	var id = api.pageParam.id;
+	//查询企业经营状态字典
+	getDicType();
+	getData(id);
+
+};
+
+//获取详情
+function getData(id){
+	var userData = $api.getStorage('mine');
+	api.showProgress({
+			title : '加载中',
+			modal : true
+	});
+	ajaxRequest('post', {
+			apiCode: 'GIS_ENTERPRISE_DEVICE_DETAIL',
+			userId: userData.userId,
+			requestData: Number(id)
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				var tpl = $('#tpl').html();
+				var content = doT.template(tpl);
+				$('#content').html(content(ret.result));
+
+				$("input[type='radio']").eq(0).attr('checked','checked');
+				$('.tabBox').eq(0).show();
+				$("input[type='radio']").on('change',function(val){
+					var val = $(this).val();
+					$('.tabBox').hide();
+					$('.tabBox').eq(val).show();
+				})
+				data = ret.result;
+
+				setTimeout(function(){
+					if(data.deviceInfo){
+						for(var i=0;i<data.deviceInfo.length;i++){
+							renderChart(data.deviceInfo[i].lampblackTrend || [],'lampblackTrend'+i);//烟雾浓度指数趋势
+							renderChart(data.deviceInfo[i].purifierEleTrend || [],'purifierEleTrend'+i);//净化器电流趋势图
+							renderChart(data.deviceInfo[i].fanEleTrend || [],'fanEleTrend'+i);//风机电流趋势图
+						}
+					}
+				},1000)
+
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+var dataInfos = {
+		datasets:[
+			{
+			  fillColor:"transparent",
+				backgroundColor:"rgba(254,225,231,0.5)",//背景色
+				borderColor:"#FC8BA3",//线条颜色
+				pointRadius:0,//数据点大小
+				pointHitRadius:0,
+			}
+		]
+	};
+
+function renderChart(data,item){
+	var labels = [];//横坐标数据
+	var datas = [];//纵坐标数据
+	for(var i=0;i<data.length;i++){
+		labels.push(data[i].time);
+		datas.push(data[i].value);
+	}
+	dataInfos.labels = labels;
+	dataInfos.datasets[0].data = datas;
+
+	if(document.getElementById(item)){
+		new Chart(document.getElementById(item).getContext("2d"),{
+			type:'line',
+			data:dataInfos,
+			options:{
+					legend:{
+						display:false //屏蔽标题
+					},
+					responsive:true,
+					tooltips:{
+						mode:'single',
+					},
+					scales:{
+						xAxes:[{
+							borderColor:'transparent',
+							ticks:{
+								autoSkip:false,
+								maxRotation:0,
+							},
+							gridLines:{
+								isplay:false,
+							},
+						}],
+						yAxes:[{
+							gridLines:{
+								display:true,
+							},
+						}]
+					}
+			}
+		});
+
+	}
+
+}
+
+function setDicType(list,type){
+	for(var i=0;i<list.length;i++){
+		if(list[i].code == type){
+			return list[i].name;
+		}
+	}
+}
+
+function getDicType() {
+	var userData = $api.getStorage('mine');
+	ajaxRequest('post', {
+			apiCode: 'DIC_QUERY',
+			userId: userData.userId,
+			requestData: {
+				pageNo: 1,
+				pageSize: 999,
+				parentCode: 'ENTERPRISE_STATUS'
+			}
+	}, function (ret, err) {
+			if (ret.code == 200) {
+				ENTERPRISE_STATUS = ret.result.list;
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+	ajaxRequest('post', {
+			apiCode: 'DIC_QUERY',
+			userId: userData.userId,
+			requestData: {
+				pageNo: 1,
+				pageSize: 999,
+				parentCode: 'PURIFIER_MODEL'
+			}
+	}, function (ret, err) {
+			if (ret.code == 200) {
+				PURIFIER_MODEL = ret.result.list;
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+function setDeviceStatus(status){
+	if(status == 0){
+		return '无故障 ';
+	}else if(status == 1){
+		return '净化器故障';
+	}else if(status == 2){
+		return '风机故障';
+	}else if(status == 3){
+		return '净化器风机均故障';
+	}
+}
+
+function setOrderStatus(status){
+	if(status == 1){
+		return '待处理';
+	}else if(status == 2){
+		return '处理中';
+	}else if(status == 3){
+		return '已处理';
+	}
+}
+
+</script>
+</body>
+</html>

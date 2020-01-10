@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>device-history-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			html, body{
+				overflow: auto;
+					width: 100%;
+					height: auto;
+			}
+			.solve-list{
+				overflow: auto;
+			}
+			.bui-page{
+				overflow: auto;
+				height: auto;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div class="bui-page page-form" id="content">
+</div>
+<script id="tpl" type="text/x-dot-template">
+		<h3 class="section-title">超标历史</h3>
+
+		<table class="bui-table bui-table-odd">
+			<tbody>
+				<tr>
+					<th style="width:25%">上报时间</th>
+					<th style="width:25%">油烟浓度</th>
+					<th style="width:25%">超标倍数</th>
+				</tr>
+				{{ var list = it.list; }}
+				{{for(var p in list){ }}
+					<tr>
+						<th style="width:25%">{{=list[p].uploadTime}}</th>
+						<th style="width:25%">{{=list[p].lampblack}}</th>
+						<th style="width:25%">{{=list[p].beyondMultiple}}</th>
+					</tr>
+				{{ } }}
+			</tbody>
+		</table>
+		{{ if(it.list.length < 1){ }}
+				<div class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></div>
+		{{ } }}
+</script>
+<script type="text/javascript" src="../script/echarts.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+var CUISINE = [];
+var pageNo = 1;
+var mainData = {list:[]};
+apiready = function(){
+
+	getData();
+
+	api.addEventListener({
+			 name:'scrolltobottom',
+			 extra:{
+					 threshold:10
+			 }
+	 }, function(ret, err){
+					 //页码+1，继续请求数据
+					 pageNo+=1;
+					 getData();
+	 });
+	 //监听下拉刷新
+	 api.setRefreshHeaderInfo({
+			 visible : true,
+			 loadingImg : 'widget://image/arrow-down-o.png',
+			 bgColor : '#39a4ff',
+			 textColor : '#fff',
+			 textDown : '下拉更多',
+			 textUp : '松开刷新',
+			 showTime : false
+		 }, function(ret, err) {
+			 //重置页码、页面数据，请求数据
+			 pageNo = 1;
+			 mainData = {list:[]};
+			 getData();
+	 });
+}
+
+function getData(){
+	// 取消下拉刷新效果
+  api.refreshHeaderLoadDone();
+	var deviceCode = api.pageParam.deviceCode;
+	var userData = $api.getStorage('mine');
+	api.showProgress({
+			title : '加载中',
+			modal : true
+	});
+
+	ajaxRequest('post', {
+			apiCode: "BEYOND_HISTORY",
+			userId: userData.userId,
+			requestData: {
+				pageNo: pageNo,
+				pageSize: 50,
+				deviceCode: deviceCode,
+			}
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				var data = api.pageParam;
+				data.list = mainData.list;
+				if(ret.result.pageNum != 0 && (pageNo > ret.result.pageNum)){
+					pageNo = ret.result.pageNum;
+					api.toast({
+							msg: '没有更多数据了！',
+							location: 'middle'
+					});
+					return;
+				}
+				mainData = data;
+				mainData.list = mainData.list.concat(ret.result.list || []);
+				var tpl = $('#tpl').html();
+				var content = doT.template(tpl);
+				$('#content').html(content(mainData));
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+
+</script>
+</body>
+</html>

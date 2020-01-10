@@ -1,0 +1,585 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>month-report-detail-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.week-info{
+					padding-top: .2rem;
+			    text-align: center;
+				}
+				.week-info h1{
+					font-weight: bold;
+				}
+				.week-info p{
+					padding-top: .2rem;
+				}
+				.img-list{
+					text-align: center;
+					margin-bottom: .4rem;
+				}
+				.list-main .img-list li{
+					padding-top: .1rem;
+			    padding-bottom: .1rem;
+			    margin: .2rem .2rem 0 .2rem;
+			    padding: .2rem 0;
+			    border-radius: .2rem;
+			    display: inline-block;
+			    background: #eee;
+			    text-align: center;
+					width: 80%;
+					height: 90%;
+				}
+
+				.list-main .img-list li h4{
+					font-size: .3rem;
+				}
+				.list-main .img-list.len-list li h4{
+					font-size: .26rem;
+				}
+				.list-main .img-list li h3{
+					font-size: .4rem;
+			    font-weight: bold;
+			    padding: .1rem;
+					color: #000;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-list li > div{
+					text-align: center;
+				}
+				.list-title > div{
+					color: #000;
+					font-weight: bold;
+					font-size: .3rem;
+				}
+				.word-tip{
+					background: red;
+			    color: #fff;
+			    border-radius: .2rem;
+			    padding: .05rem .1rem;
+			    font-size: .26rem;
+			    margin-left: .1rem;
+				}
+				.img-list.box-list li{
+					width: 1.4rem;
+				}
+				.img-list.box-list li h4{
+					font-size: .24rem;
+				}
+				.img-list.box-list li h3{
+					font-size: .3rem;
+				}
+				.bui-list .bui-box .span1{
+					text-align: center;
+				}
+				.line{
+					width: 100%;
+					height: 2px;
+					background: #eee;
+				}
+				.no1{margin-bottom: 10px;}
+        .no1,.no2{float:left;height: 3.6rem; }
+        .no2{ clear:both;}
+        .no3{height:3.6rem }
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div  class="bui-page coupon-page">
+	<div class="week-info">
+		<h1>2019年12月</h1>
+		<p>月报</p>
+	</div>
+	<div id="uiTab" class="bui-tab site-tab">
+			<div class="bui-tab-head">
+					<ul class="bui-nav">
+							<li class="bui-btn active">当月数据统计</li>
+							<li class="bui-btn">超标排行及分布</li>
+							<li class="bui-btn">整改情况统计</li>
+					</ul>
+			</div>
+			<div class="bui-tab-main" id="content">
+
+			</div>
+	</div>
+</div>
+<script id="tpl" type="text/x-dot-template">
+<ul class="list-main">
+	<li>
+		<ul class="img-list bui-box len-list">
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>餐饮企业</h4>
+								<h3>{{=it.survey.enterpriseTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>新增企业</h4>
+								<h3>{{=it.survey.addEnterpriseTotal || 0}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>检测仪</h4>
+								<h3>{{=it.survey.deviceTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>新增检测仪</h4>
+								<h3>{{=it.survey.addDeviceTotal || 0}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>超标总数</h4>
+								<h3>{{=it.survey.beyondTimes}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>关停企业</h4>
+								<h3>{{=it.survey.closeEnterpriseTotal || 0}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>超标企业</h4>
+								<h3>{{=it.survey.beyondEnterpriseTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>生成工单数</h4>
+								<h3>{{=it.survey.workOrderTotal}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+		</ul>
+		<ul class="bui-list">
+			<h3 class="section-title">当月超标企业</h3>
+			<li class="bui-btn bui-box clearactive">
+				<div id="echarts_line" style="width: 100%;height:4.5rem;padding:.1rem;"></div>
+			</li>
+		</ul>
+	</li>
+	<li style="display: none;">
+		<ul class="bui-list">
+			<h3 class="section-title">当月超标企业情况</h3>
+			<li class="bui-btn bui-box clearactive list-title">
+				<div class="span2">超标餐饮企业</div>
+				<div class="span1">超标数</div>
+				<div class="span2">最大油烟浓度</div>
+			</li>
+			{{ var beyondEnterprise = it.beyondEnterprise; }}
+			{{for(var p in beyondEnterprise){ }}
+				<li class="bui-btn bui-box clearactive">
+					<div class="span2">{{=beyondEnterprise[p].enterpriseName}}</div>
+					<div class="span1">{{=beyondEnterprise[p].beyondTimes}}
+					{{ if(beyondEnterprise[p].beyondTimes == 2){ }}
+						<span class="green">↓</span>
+					{{ }else if(beyondEnterprise[p].beyondTimes == 1){ }}
+						<span class="red">↑</span>
+					{{ } }}
+					</div>
+					<div class="span2">
+						{{=beyondEnterprise[p].maxLampblack || 0}}mg/m³<span class="word-tip">超标{{=beyondEnterprise[p].beyondMultiple}}倍</span>
+					</div>
+				</li>
+			{{ } }}
+			<h3 class="section-title">超标企业社区分布</h3>
+			<li class="bui-btn bui-box clearactive">
+				<div id="echarts_pie" style="width: 100%;height:5rem;"></div>
+			</li>
+			<h3 class="section-title">各社区当月餐饮企业超标趋势图</h3>
+			<li class="bui-btn bui-box clearactive">
+				<div id="echarts_week" style="width: 100%;height:6rem;"></div>
+			</li>
+		</ul>
+	</li>
+	<li style="display: none;">
+		<h3 class="section-title">一月数据总览</h3>
+		<ul class="img-list bui-box len-list">
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>工单数</h4>
+								<h3>{{=it.beyondRectify.workOrderTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>超标企业</h4>
+								<h3>{{=it.beyondRectify.beyondEnterpriseTotal}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>已办工单</h4>
+								<h3>{{=it.beyondRectify.finishWorkOrderTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>已整改</h4>
+								<h3>{{=it.beyondRectify.rectifyedTotal}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>待办工单</h4>
+								<h3>{{=it.beyondRectify.initWorkOrderTotal}}</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>未整改</h4>
+								<h3>{{=it.beyondRectify.norectifyTotal}}</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+				<div class="span1 no1">
+					<div class="bui-box-vertical" style="height:100%;">
+						<div class="span1" style="padding-bottom:.2rem;">
+							<li>
+								<h4>工单处置率</h4>
+								<h3>{{=it.beyondRectify.workOrderHandleRate||0}}%</h3>
+							</li>
+						</div>
+						<div class="span1">
+							<li>
+								<h4>整改完成率</h4>
+								<h3>{{=it.beyondRectify.rectifyRate || 0}}%</h3>
+							</li>
+						</div>
+					</div>
+				</div>
+		</ul>
+		<ul class="bui-list">
+			<div class="line"></div>
+			<h3 class="section-title">未整改企业明细</h3>
+			<li class="bui-btn bui-box clearactive list-title">
+				<div class="span1">餐饮企业</div>
+				<div class="span1">所属社区</div>
+				<div class="span1">上月<br/>超标数</div>
+				<div class="span1">本月<br/>超标数</div>
+				<div class="span1">最大油烟<br/>浓度</div>
+			</li>
+			{{ var rectifyDetail = it.rectifyDetail; }}
+			{{for(var p in rectifyDetail){ }}
+				<li class="bui-btn bui-box clearactive">
+					<div class="span1">{{=rectifyDetail[p].enterpriseName}}</div>
+					<div class="span1">{{=rectifyDetail[p].communityName}}</div>
+					<div class="span1">{{=rectifyDetail[p].lastCycleBeyondTimes}}</div>
+					<div class="span1">{{=rectifyDetail[p].cycleBeyondTimes}}</div>
+					<div class="span1">
+						{{=rectifyDetail[p].maxLampblack}}mg/m³<p class="word-tip">超标{{=rectifyDetail[p].beyondMultiple || 0}}倍</p>
+					</div>
+				</li>
+			{{ } }}
+		</ul>
+	</li>
+</ul>
+</script>
+<script type="text/javascript" src="../script/echarts.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+
+var option = {
+      backgroundColor:'#6A5ACD',//背景颜色透明
+			title: {
+				text: '当月超标企业趋势图',
+				left:'30%',
+				top:'5%',
+				textStyle:{
+					color:'#fff',
+					fontSize: 14,
+				}
+			},
+			tooltip : {
+		     trigger: 'axis',
+		     axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+		         type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+		     }
+	    },
+      grid: {
+				top: '28%',
+				left: '5%',
+				right: '5%',
+				bottom: '12%',
+				containLabel: true
+      },
+      xAxis: {
+          type: 'category',
+          data: [],
+					axisLabel: {
+              show: true,
+              textStyle: {
+                  color: '#fff'
+              }
+          },
+					axisLine: {
+			        lineStyle: {
+			            color: '#eee', // 颜色
+			        }
+			    }
+      },
+      yAxis: {
+          type: 'value',
+          splitLine:{show: false},//去除网格线
+					axisLabel : {
+              formatter: '{value}',
+              textStyle: {
+                  color: '#fff'
+              }
+          },
+					axisLine: {
+			        lineStyle: {
+			            color: '#eee', // 颜色
+			        }
+			    }
+      },
+      series: [
+          {
+              name:'',
+              type:'line',
+							smooth: true,
+              itemStyle: {
+                  color: '#6A5ACD',
+                  normal: {
+                      lineStyle: {        // 系列级个性化折线样式
+                          width: 2,
+                          type: 'solid',
+                          color: '#fff',//线条渐变色
+                      }
+                  },
+                  emphasis: {
+                      color: '#6A5ACD',
+                      lineStyle: {        // 系列级个性化折线样式
+                          width: 2,
+                          type: 'dotted',
+                          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                              offset: 0,
+                              color: '#1E90FF'
+                          }, {
+                              offset: 1,
+                              color: '#0000FF'
+                          }])
+                      }
+                  }
+              },//线条样式
+              areaStyle:{
+                  normal:{
+                     //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
+                      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                          offset: 0,
+                          color: 'rgba(80,141,255,0.39)'
+                      }, {
+                          offset: .34,
+                          color: 'rgba(56,155,255,0.25)'
+                      },{
+                          offset: 1,
+                          color: 'rgba(38,197,254,0.00)'
+                      }])
+                  }
+              },//区域颜色渐变
+              data:[]
+          }
+      ]
+  };
+
+
+var optionPie = {
+    tooltip: {
+        trigger: 'item',
+        formatter: "{b} : {c}"
+    },
+    color: ['#CD5C5C', '#00CED1', '#9ACD32', '#FFC0CB','#CD5C5C', '#00CED1', '#9ACD32', '#FFC0CB','#CD5C5C', '#00CED1', '#9ACD32', '#FFC0CB'],
+    stillShowZeroSum: false,
+    series: [
+        {
+            type: 'pie',
+            radius: '80%',
+            center: ['50%', '50%'],
+            data: [],
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(128, 128, 128, 0.5)'
+                }
+            }
+        }
+    ]
+};
+
+var optionWeek = {
+      tooltip : {
+              trigger: 'axis'
+      },
+      legend: {
+              data:[]
+      },
+      calculable : true,
+      xAxis : [
+              {
+                  type : 'category',
+                  boundaryGap : false,
+                  data : []
+              }
+      ],
+      yAxis : [
+              {
+                  type : 'value'
+              }
+      ],
+      series : []
+};
+
+var item = {};
+apiready = function(){
+
+	var id = api.pageParam.id;
+	item = api.pageParam.item;
+	$('.week-info').find('h1').text(item.year+'年'+item.cycle+'月');
+	getData(id);
+
+}
+
+//获取详情
+function getData(id){
+	var userData = $api.getStorage('mine');
+	api.showProgress({
+			title:'加载中',
+			modal:false
+	});
+	ajaxRequest('post', {
+			apiCode: 'REPORT_DETAIL',
+			userId: userData.userId,
+			requestData: Number(id)
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				var tpl = $('#tpl').html();
+				var content = doT.template(tpl);
+				$('#content').html(content(ret.result));
+
+				var tab = bui.tab({
+						id: "#uiTab",
+				})
+				//本周/月超标企业趋势折线图
+				var beyondTrend = ret.result.beyondTrend || [];
+				var echarts_line_xAxis = [], echarts_line_series = [];
+				for(var i=0;i<beyondTrend.length;i++){
+					echarts_line_xAxis.push(beyondTrend[i].date);
+					echarts_line_series.push(beyondTrend[i].enterpriseTotal);
+				}
+				option.xAxis.data = echarts_line_xAxis;
+				option.series[0].data = echarts_line_series;
+				var myChart = echarts.init(document.getElementById('echarts_line'));
+				myChart.setOption(option);
+
+				//超标企业社区分布饼图
+				var beyondCommunity = ret.result.beyondCommunity || [];
+				var echarts_pie_series = [];
+				for(var i=0;i<beyondCommunity.length;i++){
+					echarts_pie_series.push({
+						value: beyondCommunity[i].beyondTimes,
+						name: beyondCommunity[i].communityName
+					});
+				}
+				optionPie.series[0].data = echarts_pie_series;
+				var ChartPie = echarts.init(document.getElementById('echarts_pie'));
+				ChartPie.setOption(optionPie);
+
+				// 各社区当月/月餐饮企业超标趋势图
+				var communityBeyondTrend = ret.result.communityBeyondTrend || [];
+				var echarts_week_xAxis = [], echarts_week_series = [],echarts_week_legend = [];
+				for(var i =0;i<communityBeyondTrend.length;i++){
+					echarts_week_legend.push(communityBeyondTrend[i].communityName);
+					var obj = {
+						name:communityBeyondTrend[i].communityName,
+						type:'line',
+						smooth: true,
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+					};
+					var arr = [];
+					for(var j=0;j<communityBeyondTrend[i].list.length;j++){
+						arr.push(communityBeyondTrend[i].list[j].beyondTimes);
+					}
+					obj.data = arr;
+					echarts_week_series.push(obj)
+				}
+				for(var i=0;i<communityBeyondTrend[0].list.length;i++){
+					echarts_week_xAxis.push(communityBeyondTrend[0].list[i].date);
+				}
+				optionWeek.legend.data = echarts_week_legend;
+				optionWeek.xAxis[0].data = echarts_week_xAxis;
+				optionWeek.series = echarts_week_series;
+				var ChartLineWeek = echarts.init(document.getElementById('echarts_week'));
+				ChartLineWeek.setOption(optionWeek);
+
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+function setHandleResult(status){
+	if(!status){
+		return '暂无';
+	}else if(status == 1){
+		return '设备损坏';
+	}else if(status == 2){
+		return '设备维修';
+	}else if(status == 3){
+		return '设备未供电';
+	}
+}
+
+</script>
+</body>
+</html>

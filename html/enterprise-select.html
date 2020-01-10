@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>enterprise-select</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+				.bui-list>[class*=bui-btn]:last-child{
+					border-bottom: 1px solid #eee;
+				}
+				.bui-box p{
+					color: #666;
+				}
+				.bui-box p span{
+					color: #000;
+					font-weight: bold;
+				}
+				.bui-box .green{
+					color: green;
+					font-weight: bold;
+				}
+				.bui-box .red{
+					color: red;
+					font-weight: bold;
+				}
+				.bui-box .hui{
+					color: #eee;
+					font-weight: bold;
+				}
+
+		</style>
+	</head>
+<body style="background-color:#fff;">
+	<div class="bui-page">
+		<header class="bui-bar" id="header">
+				<div class="bui-bar">
+						<div class="bui-bar-left">
+								<a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a>
+						</div>
+						<div class="bui-bar-main">筛选企业</div>
+						<div class="bui-bar-right">
+						</div>
+				</div>
+		</header>
+	<main>
+		<div class="bui-interval">
+			<div class="bui-panel">
+					<div class="bui-panel-head bui-box-center"><div class="span1">选择企业</div><i class="icon-accordion"></i></div>
+					<div class="bui-panel-main">
+						<!-- 示例搜索过滤 -->
+						<div class="bui-filter bui-fluid-space-2" id="content">
+
+						</div>
+					</div>
+				</div>
+		</div>
+	</main>
+
+	</div>
+	<script id="tpl" type="text/x-dot-template">
+	{{ if(it.length < 1){ }}
+			<li class="no-data"><img src="../image/no-data.png"/><br/><p>暂无数据</p></li>
+	{{ } }}
+	{{for(var p in it){ }}
+		<div class="span1">
+			<input class="bui-check" type="radio" name="type" uncheck="{{=it[p].name}}" check="{{=it[p].name}}" value="{{=it[p].id}}">
+		</div>
+	{{ } }}
+	</script>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	var data = [], curenterpriseId = '';
+
+	apiready = function(){
+		var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+
+		data = api.pageParam.data;
+		curenterpriseId = api.pageParam.id;
+
+		var tpl = $('#tpl').html();
+		var content = doT.template(tpl);
+		$('#content').html(content(data));
+
+		var radioArr = $("input[type='radio']");
+		for(var i=0;i<radioArr.length;i++){
+			var val = $(radioArr[i]).val();
+			if(val == curenterpriseId){
+				$(radioArr[i]).attr('checked','checked');
+			}
+		}
+
+
+		$("input[type='radio']").on('change',function(val){
+			var val = $(this).val();
+			var item = {};
+			for(var i=0;i<data.length;i++){
+				if(val == data[i].id){
+					item = data[i];
+				}
+			}
+			api.sendEvent({
+			    name: 'enterpriseSelect',
+			    extra: item
+			});
+			my_close();
+
+		})
+
+	}
+
+
+
+	//返回
+	function my_close() {
+			api.closeWin();
+	}
+
+	</script>
+</body>
+</html>

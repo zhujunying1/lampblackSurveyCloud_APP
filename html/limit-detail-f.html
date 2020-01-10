@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>limit-detail-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.solve-list{
+				width:100%;
+				height:100%;
+			}
+			.solve-list h3{
+				font-weight: bold;
+				font-size: .36rem;
+			}
+			.bui-list label{
+				text-align-last: justify;
+		    -moz-text-align-last: justify ;  //兼容firefox
+		    text-align: justify;
+		    text-justify: distribute-all-lines;  //兼容ie
+		    display: block; //ie下需设为block
+				width: 1.8rem;
+			}
+			.line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+			}
+			.bui-list>[class*=bui-btn]{
+				border-bottom: none;
+			}
+			input.bui-tag, input.bui-check{
+				width: 1.8rem;
+				border-radius: .3rem;
+			}
+			.img-list{
+				padding-bottom: .2rem;
+			}
+			.img-list img{
+				width: 100%;
+				height: 100%;
+			}
+			.bui-nav.bui-fluid>[class*=bui-btn].bui-box-vertical{
+				padding: .2rem;
+				height: 2.6rem;
+			}
+			.span4{
+			  color: #000;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div class="bui-page page-form" id="content"></div>
+<script id="tpl" type="text/x-dot-template">
+	<main class="solve-list">
+		<h3 class="section-title">详情</h3>
+		<ul class="bui-list">
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">企业名称</label>：
+				<div class="span1">
+					{{=it.enterpriseName}}
+				</div>
+			</li>
+			<div class="line"></div>
+			<h3 class="section-title">概况</h3>
+			<li class="bui-btn bui-box clearactive">
+				<div class="span1">检测超标{{=it.beyondRecords.length}}次</div>
+			</li>
+			{{ var beyondRecords = it.beyondRecords; }}
+			{{for(var p in beyondRecords){ }}
+				<li class="bui-btn bui-box clearactive">
+					<div class="span1">{{=timestampToTime(beyondRecords[p].uploadTime)}}</div>
+					<div class="span1">
+						烟雾指数:<span class="word-red">{{=beyondRecords[p].lampblack}}</span>mg/m³
+					</div>
+				</li>
+			{{ } }}
+		</ul>
+	</main>
+</script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+var CUISINE = [];
+
+apiready = function(){
+
+	var data = api.pageParam;
+
+	var tpl = $('#tpl').html();
+	var content = doT.template(tpl);
+	$('#content').html(content(data));
+
+}
+
+
+</script>
+</body>
+</html>

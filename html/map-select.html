@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>set</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style>
+			html,body{
+				height: auto;
+			}
+			.backdrop {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0,0,0,0.6);
+			}
+			.backdrop.opacity {
+				background: rgba(0,0,0,0);
+			}
+		</style>
+	</head>
+<body>
+	<div class="bui-box">
+	  <div class="span1">
+			<div id="uiDoropdown" class="bui-dropdown">
+	          <div class="bui-btn bui-box">
+	              <div class="span1">区域</div>
+	              <i class="icon-dropdown"></i>
+	          </div>
+	      </div>
+		</div>
+</div>
+	<script type="text/javascript" src="../script/common.js"></script>
+	<script type="text/javascript">
+
+	apiready = function(){
+
+		//动态渲染
+		    var uiDoropdown = bui.dropdown({
+		        id: "#uiDoropdown",
+		        data: [{
+		            name: "广州",
+		            value: "gz"
+		        }, {
+		            name: "广东",
+		            value: "gd"
+		        }],
+		        //设置relative为false,二级菜单继承父层宽度
+		        relative: false,
+		        value: "广东",
+		        onChange: function(e) {
+		            console.log(this.value(), "change")
+		        },
+		        callback: function(e) {
+		            console.log(this.value(), "click")
+		            console.log(this.text(), "click")
+		            console.log(this.values(), "click")
+		        }
+		    })
+
+	}
+
+
+	</script>
+</body>
+</html>

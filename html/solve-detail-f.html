@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>solve-detail-f</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/doT.min.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<style type="text/css">
+			.solve-list{
+				width:100%;
+				height:100%;
+			}
+			.solve-list h3{
+				font-weight: bold;
+				font-size: .36rem;
+			}
+			.bui-list label{
+				text-align-last: justify;
+		    -moz-text-align-last: justify ;  //兼容firefox
+		    text-align: justify;
+		    text-justify: distribute-all-lines;  //兼容ie
+		    display: block; //ie下需设为block
+				width: 1.8rem;
+			}
+			.line{
+				width: 100%;
+				height: 2px;
+				background: #eee;
+			}
+			.bui-list>[class*=bui-btn]{
+				border-bottom: none;
+			}
+			input.bui-tag, input.bui-check{
+				width: 1.8rem;
+				border-radius: .3rem;
+			}
+			.img-list{
+				padding-bottom: .2rem;
+			}
+			.img-list img{
+				width: 100%;
+				height: 100%;
+			}
+			.bui-nav.bui-fluid>[class*=bui-btn].bui-box-vertical{
+				padding: .2rem;
+				height: 2.6rem;
+			}
+			.span4{
+			  color: #000;
+			}
+		</style>
+	</head>
+<body style="background-color:#fff;">
+<div class="bui-page page-form" id="content"></div>
+<script id="tpl" type="text/x-dot-template">
+	<main class="solve-list">
+		<ul class="bui-list">
+				<li class="bui-btn bui-box clearactive">
+					<label class="bui-label" style="width:1.4rem">工单号:</label>
+					<div class="span1">{{=it.baseInfo.orderNo}}</div>
+					<label class="bui-label" style="width:1.4rem">工单日期:</label>
+					<div class="span1">{{=timestampToTime(it.baseInfo.createDate)}}</div>
+				</li>
+				<li class="bui-btn bui-box clearactive">
+					<label class="bui-label" style="width:1.4rem">处理结果:</label>
+					<div class="span1">{{=setHandleResult(it.workOrderHandle.handleResult)}}</div>
+				</li>
+		</ul>
+		<div class="line"></div>
+		<h3 class="section-title">企业信息</h3>
+		<ul class="bui-list">
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="phonenumber">责任单位</label>：
+				<div class="span1">
+						{{=it.baseInfo.dutyEnterprise}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label" for="password">责任人</label>：
+				<div class="span1">
+						{{=it.baseInfo.dutyPerson}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">联系电话</label>：
+				<div class="span1">
+					{{=it.baseInfo.dutyPersonMobile}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">企业地址</label>：
+				<div class="span1">
+					{{=it.baseInfo.enterpriseAddress}}
+				</div>
+			</li>
+		</ul>
+		{{ if(it.beyondRecords && it.beyondRecords.length){ }}
+			<div class="line"></div>
+			<h3 class="section-title">督办原因</h3>
+			<ul class="bui-list">
+				<li class="bui-btn bui-box clearactive">
+					<span class="word-red">{{=it.baseInfo.reason}}</span>
+				</li>
+				{{ var beyondRecords = it.beyondRecords; }}
+				{{for(var p in beyondRecords){ }}
+					<li class="bui-btn bui-box clearactive">
+						<div class="span1">{{=timestampToTime(beyondRecords[p].timeStamp)}}</div>
+						<div class="span1">
+							烟雾指数:<span class="word-red">{{=beyondRecords[p].lampblack}}</span>mg/m³
+						</div>
+					</li>
+				{{ } }}
+			</ul>
+		{{ } }}
+		<div class="line"></div>
+		<h3 class="section-title">设备检查</h3>
+		<ul class="bui-list">
+			<li class="bui-btn bui-box">
+				<div class="bui-box-align-center" style="width:100%;text-align:center">
+					监视仪
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">监视仪运行</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.monitorStatus == 1 ? '正常' : '异常'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">探头运行</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.probeStatus == 1 ? '正常' : '故障'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">探头渗油</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.probeOilLeakage == 1 ? '渗油' : '未渗油'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">网络情况</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.netStatus == 1 ? '已连接' : '未连接'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">备注</label>：
+				<div class="span1">
+					{{=it.workOrderHandle.deviceRemark}}
+				</div>
+			</li>
+			<div class="line"></div>
+			<li class="bui-btn bui-box">
+				<div class="bui-box-align-center" style="width:100%;text-align:center">
+					净化器
+				</div>
+			</li>
+<!--			<li class="bui-btn bui-box clearactive">-->
+<!--				<label class="bui-label">编号</label>：-->
+<!--				<div class="span1">{{=it.baseInfo.purifierCode || ''}}</div>-->
+<!--				<label class="bui-label">净化器型号</label>：-->
+<!--				<div class="span1">{{=it.baseInfo.purifierModel || ''}}</div>-->
+<!--			</li>-->
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">运行情况</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.purifierStatus == 1 ? '正常' : '异常'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">设备故障</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.purifierFault == 1 ? '故障' : '无故障'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">备注</label>：
+				<div class="span1">
+					{{=it.workOrderHandle.purifierRemark}}
+				</div>
+			</li>
+			<div class="line"></div>
+			<li class="bui-btn bui-box">
+				<div class="bui-box-align-center" style="width:100%;text-align:center">
+					风机
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">运行情况</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.fanStatus == 1 ? '正常' : '异常'}}
+				</div>
+			</li>
+			<li class="bui-btn bui-box clearactive">
+				<label class="bui-label">接口渗油</label>：
+				<div class="span4">
+					{{=it.workOrderHandle.intfOilLeakage == 1 ? '渗油' : '未渗油'}}
+				</div>
+			</li>
+		</ul>
+		<div class="line"></div>
+		<h3 class="section-title">巡检照片</h3>
+		<ul class="bui-nav shortcut-nav bui-fluid img-list">
+			{{ var imgPath = it.enclosures; }}
+			{{for(var p in imgPath){ }}
+				<li class="bui-btn bui-box-vertical span4" tapmode onclick="openImageBrower('{{=imgPath}}','{{=p}}')"><img src="{{=static_url+imgPath[p]}}"/></li>
+			{{ } }}
+		</ul>
+	</main>
+</script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+
+apiready = function(){
+
+	var id = api.pageParam.id;
+
+	getData(id);
+
+}
+
+//获取工单详情
+function getData(id){
+	var userData = $api.getStorage('mine');
+	ajaxRequest('post', {
+			apiCode: 'WORK_ORDER_HANDLE_DETAIL',
+			userId: userData.userId,
+			requestData: Number(id)
+	}, function (ret, err) {
+			api.hideProgress();
+			if (ret.code == 200) {
+				var tpl = $('#tpl').html();
+				var content = doT.template(tpl);
+				$('#content').html(content(ret.result));
+			} else {
+				api.toast({
+						msg: ret.message,
+						location: 'middle'
+				});
+				return false;
+			}
+	});
+}
+
+function openImageBrower(arr, i) { //图片浏览器
+		var str = arr.split(',');
+		var data = [];
+		for (var p in str) {
+				data.push(static_url + str[p]);
+		}
+		//图片浏览器打开
+		var obj = api.require('imageBrowser');
+		obj.openImages({
+				imageUrls: data,
+				activeIndex: i
+		});
+}
+
+function setHandleResult(status){
+	if(!status){
+		return '暂无';
+	}else if(status == 1){
+		return '设备损坏';
+	}else if(status == 2){
+		return '设备维修';
+	}else if(status == 3){
+		return '设备未供电';
+	}
+}
+
+</script>
+</body>
+</html>

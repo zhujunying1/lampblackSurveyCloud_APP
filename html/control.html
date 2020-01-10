@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>control</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="../css/bui.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/zepto.js"></script>
+		<script type="text/javascript" src="../script/bui.js"></script>
+		<script type="text/javascript" src="../script/common.js"></script>
+		<style type="text/css">
+		.bui-bar-right a{
+			padding-top: .2rem;
+			padding-right: .2rem;
+			color: #fff;
+			display: inline-block;
+		}
+		.job-ul{
+			padding: .3rem 0;
+		}
+		.job-ul li{
+			text-align: center;
+			background: #2F9CF0;
+			color: #fff;
+		}
+		.job-ul li:nth-child(2){
+			background: #9BCC66;
+		}
+		.job-ul li:nth-child(3){
+			background: #F7CA4A;
+		}
+		.job-ul li:nth-child(4){
+			background: #F06451;
+		}
+		[class*=bui-box].job-ul>li{
+			margin: 0 .2rem;
+			padding: .2rem;
+		}
+		.job-ul li p{
+			font-size: .6rem;
+		}
+		.job-ul li p span{
+			font-size: .3rem;
+		}
+		</style>
+	</head>
+<body style="background-color:#fff;overflow:hidden;">
+  <header id="header" class="bui-bar">
+    <div class="bui-bar-left"><a class="bui-btn btn-back" tapmode onclick="my_close()"><i class="icon-back"></i></a> </div>
+		<div class="bui-bar-main">浦口区餐饮油烟智能监控云平台</div>
+		<div class="bui-bar-right">
+		</div>
+		<!-- <div class="bui-bar-right" tapmode onclick="openEnterprise()">
+			<a href="javascript:;">筛选</a>
+		</div> -->
+  </header>
+<div class="bui-page" id="content">
+	<ul class="bui-box job-ul">
+		<li class="span3">
+			<p><b>0</b><br/><span>总数</span></p>
+		</li>
+		<li class="span3 job-middle-li-right">
+			<p><b>0</b><br/><span>在线</span></p>
+		</li>
+		<li class="span3">
+			<p><b>0</b><br/><span>离线</span></p>
+		</li>
+		<li class="span3 job-middle-li">
+			<p><b>0</b><br/><span>超标</span></p>
+		</li>
+	</ul>
+	<div class="line"></div>
+	<div id="uiTab" class="bui-tab">
+			<div class="bui-tab-head">
+					<ul class="bui-nav">
+						<li class="bui-btn" value='0'>全部设备</li>
+						<li class="bui-btn" value='1'>在线设备</li>
+						<li class="bui-btn" value='2'>离线设备</li>
+						<li class="bui-btn" value='3'>超标设备</li>
+					</ul>
+			</div>
+			<div class="bui-tab-main">
+					<ul>
+							<li>
+								<div id="uiSearchbar" class="bui-searchbar bui-box wrap-search">
+											<div class="span1">
+													<div class="bui-input">
+															<i class="icon-search"></i>
+															<input type="search" value="" placeholder="请输入企业名"/>
+													</div>
+											</div>
+											<div class="btn-search">搜索</div>
+									</div>
+									<div class="line"></div>
+							</li>
+						</ul>
+				</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+var enterpriseList = [], curenterpriseId = '', tabIndex = 0, searchValue = '';
+var uiTab = bui.tab({
+        id:"#uiTab",
+				swipe: false
+    });
+var uiSearchbar = bui.searchbar({
+      id:"#uiSearchbar",
+      callback: function (ui,keyword) {
+        // 点击搜索
+				searchValue = keyword;
+        filterList(tabIndex,searchValue);
+      },
+      onInput: function(ui,keyword) {
+        // 输入实时搜索
+      },
+      onRemove: function(ui,keyword) {
+        // 删除关键词需要做什么其它处理
+      }
+  });
+apiready = function () {
+    var header = $api.byId('header');
+    $api.fixIos7Bar(header);
+		$api.fixStatusBar(header);
+    api.setStatusBarStyle({
+        style: 'light'
+    });
+    var headerPos = $api.offset(header);
+    var width = api.winWidth;
+    var height = api.winHeight - headerPos.h;
+
+		var param = api.pageParam;
+
+		var userData = $api.getStorage('mine');
+    if(userData){
+      getEnterpriseList();
+    }
+
+    api.openFrame({
+				name: 'control-f',
+				url: './control-f.html',
+        bounces: false,
+        opaque: true,
+        reload: true,
+        vScrollBarEnabled: false,
+        bgColor: '#fff',
+        rect: {
+            x: 0,
+            y: headerPos.h+212,
+            w: width,
+            h: height
+        },
+				pageParam: param,
+    });
+
+		api.addEventListener({
+  	    name: 'mapData'
+  	}, function(ret, err) {
+			var data = ret.value;
+			$('.job-ul').find('li').eq(0).find('b').text(data.deviceTotalList.length);
+			$('.job-ul').find('li').eq(1).find('b').text(data.onlineTotalList.length);
+			$('.job-ul').find('li').eq(2).find('b').text(data.offlineTotalList.length);
+			$('.job-ul').find('li').eq(3).find('b').text(data.beyondTotalList.length);
+  	});
+
+		api.addEventListener({
+  	    name: 'enterpriseSelect'
+  	}, function(ret, err) {
+  		var item = ret.value;
+  		curenterpriseId = item.id;
+  	});
+
+		api.addEventListener({
+				name: 'keyback'
+		}, function (ret, err) {
+				my_close();
+		});
+};
+
+function getEnterpriseList(){
+  var userData = $api.getStorage('mine');
+  api.showProgress({
+      title:'加载中',
+      modal:false
+  });
+  ajaxRequest('post', {
+      apiCode: "ENTERPRISE_LIST",
+      userId: userData.userId,
+      requestData: {}
+  }, function (ret, err) {
+      api.hideProgress();
+      if (ret.code == 200) {
+        enterpriseList = ret.result || [];
+      } else {
+        api.toast({
+            msg: ret.message,
+            location: 'middle'
+        });
+        return false;
+      }
+  });
+}
+
+$('.bui-nav li').on('click',function() {
+	uiSearchbar.reset();
+	var val = $(this).attr('value');
+	searchValue = '';
+	tabIndex = val;
+	filterList(tabIndex,searchValue);
+})
+function filterList(tabIndex,searchValue){
+	api.sendEvent({
+			name: 'filterList',
+			extra: {
+				tabIndex: tabIndex,
+				searchValue: searchValue
+			}
+	});
+}
+
+
+function openEnterprise(){
+  api.openWin({
+      name: 'enterprise-select',
+      url: './enterprise-select.html',
+      opaque: true,
+      vScrollBarEnabled:false,
+      pageParam: {
+        data: enterpriseList,
+        id: curenterpriseId
+      },
+  });
+}
+function my_close() {
+		api.closeWin();
+}
+
+</script>
+</body>
+</html>
