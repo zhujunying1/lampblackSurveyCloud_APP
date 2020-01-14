@@ -52,6 +52,17 @@
 			.span4{
 			  color: #000;
 			}
+			.bui-box a.into-map{
+				padding: .1rem .2rem;
+				border-radius: .2rem;
+				text-align: center;
+				background: #2F9CF0;
+				color: #fff;
+			}
+			.bui-box .span1 a.mobile{
+				color: red;
+				text-decoration: underline;
+			}
 		</style>
 	</head>
 <body style="background-color:#fff;">
@@ -83,6 +94,7 @@
 				<div class="span1">
 					{{=it.address}}
 				</div>
+				<a class="into-map" href="javascript:;" tapmode  onclick="intoMap('{{=it.longitude}}','{{=it.latitude}}','{{=it.id}}')">进入地图</a>
 			</li>
 			<li class="bui-btn bui-box clearactive">
 				<label class="bui-label">负责人姓名</label>：
@@ -93,7 +105,7 @@
 			<li class="bui-btn bui-box clearactive">
 				<label class="bui-label">负责人手机</label>：
 				<div class="span1">
-						{{=it.ownerMobile}}
+						<a class="mobile" href="javascript:;" tapmode  onclick="callMobile('{{=it.ownerMobile}}')">{{=it.ownerMobile}}</a>
 				</div>
 			</li>
 			<li class="bui-btn bui-box clearactive">
@@ -127,6 +139,13 @@
 				</div>
 			</li>
 		</ul>
+		<h3 class="section-title">企业照片</h3>
+		<ul class="bui-nav shortcut-nav bui-fluid img-list">
+			{{ var imgPath = it.imgPath; }}
+			{{for(var p in imgPath){ }}
+				<li class="bui-btn bui-box-vertical span4" tapmode onclick="openImageBrower('{{=imgPath}}','{{=p}}')"><img src="{{=static_url+imgPath[p]}}"/></li>
+			{{ } }}
+		</ul>
 	</main>
 </script>
 <script type="text/javascript" src="../script/common.js"></script>
@@ -138,8 +157,25 @@ apiready = function(){
 	//查询菜系字典
 	getDicType();
 
+}
 
+function callMobile(mobile){
+	api.call({
+	    type: 'tel_prompt',
+	    number: mobile
+	});
+}
 
+function intoMap(longitude,latitude,id){
+	api.openWin({
+      name: 'control',
+      url: './control.html',
+			pageParam:{
+				longitude: longitude,
+				latitude: latitude,
+				id: id
+			}
+  });
 }
 
 function setDicType(type){
@@ -167,7 +203,10 @@ function getDicType() {
 				CUISINE = ret.result.list;
 
 				var data = api.pageParam;
-
+				data.imgPath = [];
+				if(data.photo1) data.imgPath.push(data.photo1);
+				if(data.photo2) data.imgPath.push(data.photo2);
+				if(data.photo3) data.imgPath.push(data.photo3);
 				var tpl = $('#tpl').html();
 				var content = doT.template(tpl);
 				$('#content').html(content(data));
@@ -181,7 +220,19 @@ function getDicType() {
 			}
 	});
 }
-
+function openImageBrower(arr, i) { //图片浏览器
+		var str = arr.split(',');
+		var data = [];
+		for (var p in str) {
+				data.push(static_url + str[p]);
+		}
+		//图片浏览器打开
+		var obj = api.require('imageBrowser');
+		obj.openImages({
+				imageUrls: data,
+				activeIndex: i
+		});
+}
 
 
 </script>

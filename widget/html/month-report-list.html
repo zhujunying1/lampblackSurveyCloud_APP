@@ -93,7 +93,7 @@
 
 	var enterpriseId = '', status = '', curId = '', purifierFaultStatus='',fanFaultStatus='';
 
-	var year = '2019';
+	var year = String(new Date().getFullYear());
 	var data = [];
 	apiready = function(){
 	    var header = $api.byId('header');

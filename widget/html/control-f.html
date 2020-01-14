@@ -148,14 +148,28 @@ function renderMap(data){
 							if (ret.status) {
 									// alert(JSON.stringify(ret));
 									//设置中心点
-									if(data.length){
+									if(api.pageParam && api.pageParam.longitude){
 										aMap.setCenter({
 										    coords: {
-										        lon: data[0].longitude,
-										        lat: data[0].latitude
+										        lon: api.pageParam.longitude,
+										        lat: api.pageParam.latitude
 										    },
 										    animation: false
 										});
+										aMap.setZoomLevel({
+										    level: 15,
+										    animation: true
+										});
+									}else{
+										if(data.length){
+											aMap.setCenter({
+											    coords: {
+											        lon: data[0].longitude,
+											        lat: data[0].latitude
+											    },
+											    animation: false
+											});
+										}
 									}
 									api.openFrame({
 											 name: 'map-tip',

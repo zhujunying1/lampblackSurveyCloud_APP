@@ -161,6 +161,11 @@
 
 	var SUPERVISE_REASON = [];
 	apiready = function(){
+		//判断权限
+		if(!filterLimit('workOrder')){
+			$('body').html('<div class="no-data"><img src="../image/no-data.png"/><br/><p>暂无权限</p></div>')
+			return;
+		}
 			//查询督办原因字典
 			getDicType();
 

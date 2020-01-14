@@ -148,18 +148,24 @@ function login() {
 			apiCode: 'LOGIN',
 			requestData: {
 				loginName: loginName,
-				password: password
+				password: password,
+				channel: 'APP'
 			}
 	}, function (ret, err) {
 			api.hideProgress();
 			if (ret.code == 200) {
+				$api.setStorage('mine', {});
+				$api.setStorage('resources', []);
 				ret.result.loginName = loginName;
 				ret.result.password = password;
+				var resources = ret.result.resources || [];
 				$api.setStorage('mine', ret.result);
+				$api.setStorage('resources', resources);
 				api.openWin({
 						name: 'index',
 						url: '../index.html',
-						delay: 200
+						delay: 200,
+						reload: true,
 				});
 			} else {
 				api.toast({

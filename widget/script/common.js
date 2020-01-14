@@ -1,4 +1,3 @@
-
 var debug = true;
 var common_url, static_url;
 if (debug) {
@@ -7,8 +6,8 @@ if (debug) {
     static_url = 'http://39.97.252.173/lbk/api/file/download/';
 } else {
     //正式地址
-    common_url = 'http://yyiot.d-shore.cn:9090';
-    static_url = 'http://yyiot.d-shore.cn:9090/lbk/api/file/download/';
+    common_url = 'http://yyiot.d-shore.cn:8082';
+    static_url = 'http://yyiot.d-shore.cn:8082/lbk/api/file/download/';
 }
 //ajax重写
 function ajaxRequest(method, params, callBack, url) {
@@ -131,4 +130,15 @@ function timestampToTime(timestamp, hasTime) {
     return Y + M + D + ' ' + h + m + s;
   }
   return Y + M + D;
+}
+
+function filterLimit(pageName){
+  var resources = $api.getStorage('resources');
+  var curData = '';
+  for(var i=0; i<resources.length; i++){
+    if(resources[i].href == pageName){
+      curData = resources[i];
+    }
+  }
+  return curData ? true : false;
 }

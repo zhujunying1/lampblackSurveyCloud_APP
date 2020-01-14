@@ -289,6 +289,12 @@ var uiSearchbar = bui.searchbar({
       }
   });
 	apiready = function () {
+
+		//判断权限
+		if(!filterLimit('main')){
+			$('body').html('<div class="no-data"><img src="../image/no-data.png"/><br/><p>暂无权限</p></div>')
+			return;
+		}
 		//获取统计数据
 		getData();
 

@@ -106,16 +106,27 @@
 			<div class="job-num">
 					<h1>{{=it.waitHandleWorkOrderTotal}}<span>个</span></h1>
 					<p>待处理工单，请及时处理</p>
-					<a href="javascript:;" tapmode onclick="goDo('list')" >立即处理</a>
+					<a href="javascript:;" tapmode onclick="goDo('list')" id="go-do-btn">立即处理</a>
 			</div>
 
 	</div>
 	<!-- 快捷入口 -->
 	<ul class="bui-nav shortcut-nav bui-fluid">
-		<li class="bui-btn bui-box-vertical span6" tapmode onclick="exceedLimit()"><i class="icon short5">&#xe63f;<span class="bui-badges">{{=it.beyondTotal}}</span></i><div class="span1">超标</div></li>
-		<li class="bui-btn bui-box-vertical span6" tapmode onclick="repair()"><i class="icon short3">&#xe614;<span class="bui-badges">{{=it.waitRepairTotal}}</span></i><div class="span1">待维保</div></li>
-		<li class="bui-btn bui-box-vertical span6" tapmode onclick="weekReport()"><i class="icon short4">&#xe62d;</i><div class="span1">周报</div></li>
-		<li class="bui-btn bui-box-vertical span6" tapmode onclick="monthReport()"><i class="icon short1">&#xe68c;</i><div class="span1">月报</div></li>
+		{{ var todoResources = it.todoResources; }}
+		{{for(var p in todoResources){ }}
+			{{ if(todoResources[p].href == 'beyond'){ }}
+				<li class="bui-btn bui-box-vertical span6" tapmode onclick="exceedLimit()"><i class="icon short5">&#xe63f;<span class="bui-badges">{{=it.beyondTotal}}</span></i><div class="span1">超标</div></li>
+			{{ } }}
+			{{ if(todoResources[p].href == 'repair'){ }}
+				<li class="bui-btn bui-box-vertical span6" tapmode onclick="repair()"><i class="icon short3">&#xe614;<span class="bui-badges">{{=it.waitRepairTotal}}</span></i><div class="span1">待维保</div></li>
+			{{ } }}
+			{{ if(todoResources[p].href == 'weekReport'){ }}
+				<li class="bui-btn bui-box-vertical span6" tapmode onclick="weekReport()"><i class="icon short4">&#xe62d;</i><div class="span1">周报</div></li>
+			{{ } }}
+			{{ if(todoResources[p].href == 'monthReport'){ }}
+				<li class="bui-btn bui-box-vertical span6" tapmode onclick="monthReport()"><i class="icon short1">&#xe68c;</i><div class="span1">月报</div></li>
+			{{ } }}
+		{{ } }}
 	</ul>
 </script>
 <!-- <ul class="bui-box job-ul">
@@ -272,9 +283,23 @@ var mainData = {};
 				api.hideProgress();
 				if (ret.code == 200) {
 					mainData = ret.result;
+					var resources = $api.getStorage('resources');
+					var curData = [];
+					for(var i=0; i<resources.length;i++){
+						if(resources[i].href == 'todo'){
+							curData = resources[i].children || [];
+						}
+					}
+					ret.result.todoResources = curData;
 					var tpl = $('#tpl').html();
 					var content = doT.template(tpl);
 					$('#content').html(content(ret.result));
+
+					//无工单权限是不显示立即处理按钮
+			    if(!filterLimit('workOrder')){
+			        $('#go-do-btn').hide();
+			    }
+
 				} else {
 					api.toast({
 							msg: ret.message,

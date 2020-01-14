@@ -91,7 +91,8 @@ function openTab(type){
                     y: headerPos.h,
                     w: width,
                     h: height
-                }
+                },
+                reload: true,
             });
         }
         if(prevPid){
@@ -156,12 +157,10 @@ apiready = function(){
     });
 
     openTab('main');
-
-    // var userData = $api.getStorage('mine');
-    // if(userData){
-    //   getEnterpriseList();
-    // }
-
+    //无首页权限是不显示地图按钮
+    if(!filterLimit('main')){
+        $('#open-map-btn').hide();
+    }
     api.addEventListener({
         name: 'indexChange'
     }, function (ret, err) {

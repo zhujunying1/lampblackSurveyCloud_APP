@@ -144,11 +144,24 @@
 								            duration: 500
 								        }
 								    });
+										api.closeWin({
+										    name: 'main'
+										});
+										api.closeWin({
+										    name: 'control'
+										});
+										api.closeWin({
+										    name: 'list'
+										});
+										api.closeWin({
+										    name: 'user'
+										});
 										api.openWin({
 								        name: 'login',
 								        url: './login.html',
 								        opaque: true,
-								        vScrollBarEnabled:false
+								        vScrollBarEnabled:false,
+												reload: true,
 								    });
 									} else {
 										api.toast({
