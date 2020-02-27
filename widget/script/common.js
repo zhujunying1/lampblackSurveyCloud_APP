@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 var common_url, static_url;
 if (debug) {
     //测试地址
@@ -133,7 +133,7 @@ function timestampToTime(timestamp, hasTime) {
 }
 
 function filterLimit(pageName){
-  var resources = $api.getStorage('resources');
+  var resources = $api.getStorage('resources') || [];
   var curData = '';
   for(var i=0; i<resources.length; i++){
     if(resources[i].href == pageName){

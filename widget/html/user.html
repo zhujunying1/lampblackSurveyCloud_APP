@@ -249,8 +249,7 @@
 					if (ret.code == 200) {
 						var appVersion = api.appVersion;
 						console.log(appVersion)
-						console.log(ret.result.version)
-						if(ret.result.version == appVersion){
+						if(null == ret.result || ret.result.version == appVersion){
 							api.toast({
 					        msg: '您当前已为最新版本',
 					        duration:1000,

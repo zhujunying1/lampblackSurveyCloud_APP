@@ -283,7 +283,7 @@ var mainData = {};
 				api.hideProgress();
 				if (ret.code == 200) {
 					mainData = ret.result;
-					var resources = $api.getStorage('resources');
+					var resources = $api.getStorage('resources') || [];
 					var curData = [];
 					for(var i=0; i<resources.length;i++){
 						if(resources[i].href == 'todo'){

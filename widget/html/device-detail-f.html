@@ -86,6 +86,14 @@
 					</div>
 				</li>
 			{{ } }}
+			{{ if(it.address){ }}
+				<li class="bui-btn bui-box clearactive">
+					<label class="bui-label">企业地址</label>：
+					<div class="span1">
+						{{=it.address}}
+					</div>
+				</li>
+			{{ } }}
 			<li class="bui-btn bui-box clearactive">
 				<label class="bui-label">设备名称</label>：
 				<div class="span1">
